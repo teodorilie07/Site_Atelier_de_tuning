@@ -1,0 +1,89 @@
+<%
+  const p = produs;
+  const areImaginiExtra = Array.isArray(p.imagini_extra) && p.imagini_extra.length > 0;
+  const carId = 'carousel-prod-' + p.id + '-' + Math.floor(Math.random()*10000);
+%>
+<div class="product-card card reveal" data-produs-id="<%= p.id %>" data-testid="product-card-<%= p.id %>">
+  <div class="card-media">
+    <% if (areImaginiExtra) { %>
+      <!-- Carusel Bootstrap (Bonus 9) -->
+      <div id="<%= carId %>" class="carousel slide h-100" data-bs-ride="carousel" data-testid="product-carousel-<%= p.id %>">
+        <div class="carousel-inner h-100">
+          <div class="carousel-item active h-100">
+            <img src="<%= p.imagine %>" class="d-block w-100 h-100" alt="<%= p.nume %>" loading="lazy">
+          </div>
+          <% p.imagini_extra.forEach(function(img) { %>
+            <div class="carousel-item h-100">
+              <img src="<%= img %>" class="d-block w-100 h-100" alt="<%= p.nume %>" loading="lazy">
+            </div>
+          <% }); %>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#<%= carId %>" data-bs-slide="prev" onclick="event.preventDefault()">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#<%= carId %>" data-bs-slide="next" onclick="event.preventDefault()">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+    <% } else { %>
+      <img src="<%= p.imagine %>" alt="<%= p.nume %>" loading="lazy">
+    <% } %>
+
+    <div class="badges-wrap">
+      <div class="d-flex gap-1 flex-column align-items-start">
+        <% if (p._este_nou) { %>
+          <span class="badge-tuning badge-nou" data-testid="badge-nou-<%= p.id %>">NOU</span>
+        <% } %>
+        <% if (p._cheapest) { %>
+          <span class="badge-tuning badge-cheapest" data-testid="badge-cheapest-<%= p.id %>">CEL MAI IEFTIN</span>
+        <% } %>
+      </div>
+      <% if (p._oferta) { %>
+        <span class="badge-tuning badge-oferta" data-testid="badge-oferta-<%= p.id %>">-<%= p._oferta.discount %>%</span>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <h3 class="card-title" data-testid="product-title-<%= p.id %>">
+      <a href="/produs/<%= p.id %>" style="color:inherit; text-decoration:none;" data-testid="product-link-<%= p.id %>"><%= p.nume %></a>
+    </h3>
+    <div class="card-meta">
+      <span><i class="bi bi-tag-fill"></i> <%= p.categorie %></span>
+      <span><i class="bi bi-hexagon-fill"></i> <%= p.material %></span>
+      <% if (p.putere_castigata_hp > 0) { %>
+        <span style="color:var(--tuning-secondary);"><i class="bi bi-lightning-charge-fill"></i> +<%= p.putere_castigata_hp %> CP</span>
+      <% } %>
+    </div>
+    <div class="card-price" data-testid="product-price-<%= p.id %>">
+      <% if (p._oferta) { %>
+        <span class="old"><%= parseFloat(p._pret_vechi).toFixed(2) %> RON</span>
+      <% } %>
+      <%= parseFloat(p._pret_afisat).toFixed(2) %> RON
+      <% if (p._oferta) { %>
+        <span class="oferta-timer ms-2" data-expira="<%= p._oferta.expira_la %>" data-testid="timer-oferta-<%= p.id %>">00:00:00</span>
+      <% } %>
+    </div>
+
+    <!-- Butoane 3 pentru sesiune (Bonus 6) -->
+    <div class="d-flex gap-2 mt-2 flex-wrap">
+      <a href="/produs/<%= p.id %>" class="btn btn-sm btn-tuning" data-testid="product-view-<%= p.id %>">
+        <span>Detalii</span>
+      </a>
+      <button class="btn btn-sm btn-outline-light btn-comparare-add" data-produs-id="<%= p.id %>"
+              data-produs-nume="<%= p.nume %>" data-produs-imagine="<%= p.imagine %>"
+              data-testid="btn-comparare-add-<%= p.id %>" title="Adaugă la comparare">
+        <i class="bi bi-columns-gap"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-secondary btn-sesiune-pastreaza" data-produs-id="<%= p.id %>" data-testid="btn-pastreaza-<%= p.id %>" title="Păstrează în sesiune">
+        <i class="bi bi-bookmark-heart"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-warning btn-sesiune-ascunde" data-produs-id="<%= p.id %>" data-testid="btn-ascunde-<%= p.id %>" title="Ascunde din sesiune">
+        <i class="bi bi-eye-slash"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-danger btn-sesiune-sterge" data-produs-id="<%= p.id %>" data-testid="btn-sterge-<%= p.id %>" title="Șterge din sesiune">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,807 @@
+ETAPA 6 – PAGINA DE PRODUSE / PRODUSE UNICE / FILTRE / SORTARE / DATE DIN BAZA DE DATE
+
+Acest fișier conține blocurile de cod importante din proiect care implementează cerințele din enunț pentru pagina de produse, pagina produsului unic, filtrare, sortare, meniu și datele din baza de date.
+
+--------------------------------------------------------------------------------
+1) BAZA DE DATE: tabelele și structura produselor
+Proveniență: db/init.sql
+
+Cod relevant:
+```sql
+CREATE TABLE produse (
+    id SERIAL PRIMARY KEY,
+    nume VARCHAR(200) NOT NULL,
+    descriere TEXT NOT NULL,
+    imagine TEXT NOT NULL,
+    imagini_extra TEXT[] DEFAULT ARRAY[]::TEXT[],
+    categorie categorie_produs NOT NULL,
+    material VARCHAR(80) NOT NULL,
+    pret NUMERIC(10, 2) NOT NULL CHECK (pret >= 0),
+    putere_castigata_hp INTEGER NOT NULL DEFAULT 0,
+    data_adaugare DATE NOT NULL DEFAULT CURRENT_DATE,
+    culoare VARCHAR(60) NOT NULL,
+    compatibilitate TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+    necesita_montaj_profesionist BOOLEAN NOT NULL DEFAULT false
+);
+```
+
+Explicație linie cu linie:
+- CREATE TABLE produse -> creează tabelul principal pentru produse.
+- id SERIAL PRIMARY KEY -> cheia primară numerică și unică.
+- nume VARCHAR(200) NOT NULL -> numele produsului, obligatoriu.
+- descriere TEXT NOT NULL -> descrierea produsului.
+- imagine TEXT NOT NULL -> calea către imaginea principală.
+- imagini_extra TEXT[] -> vector cu imagini suplimentare pentru produsul unic.
+- categorie categorie_produs NOT NULL -> categoria mare, definită prin enumerație.
+- material VARCHAR(80) NOT NULL -> o caracteristică „material”, folosită pentru filtrare.
+- pret NUMERIC(10,2) -> prețul, valoare numerică.
+- putere_castigata_hp INTEGER -> a doua caracteristică numerică.
+- data_adaugare DATE -> data calendaristică.
+- culoare VARCHAR(60) -> o singură valoare string pentru filtru.
+- compatibilitate TEXT[] -> mai multe valori pentru un produs.
+- necesita_montaj_profesionist BOOLEAN -> caracteristică booleană.
+
+--------------------------------------------------------------------------------
+2) DATE DE EXEMPLU ÎN BAZĂ
+Proveniență: db/seed.sql
+
+Cod relevant:
+```sql
+INSERT INTO produse (nume, descriere, imagine, imagini_extra, categorie, material, pret, putere_castigata_hp, data_adaugare, culoare, compatibilitate, necesita_montaj_profesionist) VALUES
+('Spoiler Carbon GT Wing', 'Spoiler tip GT Wing din fibra de carbon ...', '...', ARRAY['...','...'], 'Exterior', 'carbon', 2450.00, 0, CURRENT_DATE - INTERVAL '3 days', 'Negru mat', ARRAY['BMW E46','BMW E90'], true),
+(...)
+```
+
+Explicație:
+- Se introduc 20 de produse cu valori diverse.
+- Aceste date sunt folosite pentru filtrare, sortare și afișare.
+- Fiecare produs are toate câmpurile cerute în enunț.
+
+--------------------------------------------------------------------------------
+3) CONECTAREA LA BAZA DE DATE
+Proveniență: db/connection.js
+
+Cod relevant:
+```js
+const { Pool } = require('pg');
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+module.exports = { pool, query: (...args) => pool.query(...args) };
+```
+
+Explicație:
+- Se creează un pool de conexiuni PostgreSQL.
+- `query` este folosit în server pentru a interoga tabela `produse`.
+
+--------------------------------------------------------------------------------
+4) MENIU CU CATEGORII DIN BAZĂ
+Proveniență: index.js
+
+Cod relevant:
+```js
+const CATEGORII_ENUM = ['Exterior', 'Interior', 'Motor', 'Roti', 'Electronice'];
+app.use(async (req, res, next) => {
+  res.locals.categorii = CATEGORII_ENUM;
+  next();
+});
+```
+
+Explicație linie cu linie:
+- `const CATEGORII_ENUM = [...]` -> definește lista valorilor categoriei mari.
+- `app.use(...)` -> se execută înainte de fiecare cerere.
+- `res.locals.categorii = CATEGORII_ENUM` -> pune valorile în contextul EJS.
+- `next()` -> continuă la următoarea rută.
+
+Proveniență: views/partials/meniu.ejs
+
+Cod relevant:
+```ejs
+<% categorii.forEach(function(c) { %>
+  <a class="dropdown-item" href="/produse?categorie=<%= encodeURIComponent(c) %>"><%= c %></a>
+<% }); %>
+```
+
+Explicație:
+- Generează subopțiunile meniului din lista de categorii, fără a le scrie manual.
+
+--------------------------------------------------------------------------------
+5) RUTA PENTRU PAGINA DE PRODUSE
+Proveniență: index.js
+
+Cod relevant:
+```js
+app.get('/produse', async (req, res) => {
+  try {
+    const oferte = citesteOferte().filter(o => o.expira_la > Date.now());
+    const cheapestSet = await calcCeiMaiIeftini();
+
+    const catMeniu = req.query.categorie;
+    let produse = (await query('SELECT * FROM produse ORDER BY id ASC')).rows;
+```
+
+Explicație linie cu linie:
+- `app.get('/produse', ...)` -> definește ruta pentru pagina catalogului.
+- `const oferte = ...` -> citește ofertele active pentru a le aplica produselor.
+- `const cheapestSet = await calcCeiMaiIeftini();` -> calculează ID-urile celor mai ieftine produse pe categorie.
+- `const catMeniu = req.query.categorie;` -> preia categoria din URL, dacă există.
+- `let produse = (await query('SELECT * FROM produse ORDER BY id ASC')).rows;` -> citește toate produsele din DB.
+
+--------------------------------------------------------------------------------
+6) FILTRAREA DUPĂ CATEGORIE DIN MENIU
+Proveniență: index.js
+
+Cod relevant:
+```js
+if (catMeniu && CATEGORII_ENUM.includes(catMeniu)) {
+  produse = produse.filter(p => p.categorie === catMeniu);
+}
+```
+
+Explicație:
+- Dacă utilizatorul a ales o categorie din meniu, se păstrează doar produsele din acea categorie.
+- Se face filtrare la nivelul serverului, exact așa cum cere enunțul.
+
+--------------------------------------------------------------------------------
+7) CONSTRUIREA OBIECTULULUI DE FILTRE
+Proveniență: index.js
+
+Cod relevant:
+```js
+const filtre = {
+  nume: req.query.nume,
+  pret_min: req.query.pret_min,
+  pret_max: req.query.pret_max,
+  material_datalist: req.query.material_datalist,
+  montaj: req.query.montaj,
+  categorii: req.query.categorii,
+  compat_text: req.query.compat_text,
+  culoare: req.query.culoare,
+  materiale_multi: req.query.materiale_multi,
+};
+```
+
+Explicație:
+- Se creează un obiect care conține toate valorile filtrului primite din request.
+- Acesta este folosit de funcția `aplicaFiltre`.
+
+--------------------------------------------------------------------------------
+8) APLICAREA FILTRELOR PE LISTA DE PRODUSE
+Proveniență: index.js
+
+Cod relevant:
+```js
+let filtrate = aplicaFiltre(produse, filtre);
+```
+
+Funcția este mai jos:
+```js
+function aplicaFiltre(produse, filtre) {
+  let list = [...produse];
+  if (filtre.nume) {
+    const raw = normalize(filtre.nume).trim();
+    if (raw.includes('*')) {
+      const regexStr = '^' + raw.split('*').map(s => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$';
+      const rx = new RegExp(regexStr);
+      list = list.filter(p => rx.test(normalize(p.nume)));
+    } else {
+      list = list.filter(p => normalize(p.nume).includes(raw));
+    }
+  }
+```
+
+Explicație pas cu pas:
+- `let list = [...produse]` -> creează o copie a listei de produse.
+- `if (filtre.nume)` -> dacă s-a introdus text în filtrul de nume, se filtrează.
+- `normalize(...)` -> elimină diacriticele pentru comparație corectă.
+- `raw.includes('*')` -> suportă wildcard `*`.
+- `regexStr` -> transformă expresia de tip `r*ie` în regex potrivit.
+- `list = list.filter(...)` -> păstrează doar produsele care se potrivesc.
+
+Mai departe:
+```js
+if (filtre.pret_min != null && filtre.pret_min !== '') {
+  const v = parseFloat(filtre.pret_min);
+  list = list.filter(p => parseFloat(p.pret) >= v);
+}
+if (filtre.pret_max != null && filtre.pret_max !== '') {
+  const v = parseFloat(filtre.pret_max);
+  list = list.filter(p => parseFloat(p.pret) <= v);
+}
+```
+
+Explicație:
+- aplică filtrarea după intervalul de preț minim și maxim.
+
+```js
+if (filtre.material_datalist) {
+  list = list.filter(p => normalize(p.material) === normalize(filtre.material_datalist));
+}
+```
+
+Explicație:
+- filtrează după material, comparând valori normalizate.
+
+```js
+if (filtre.montaj && filtre.montaj !== 'orice') {
+  const need = filtre.montaj === 'da';
+  list = list.filter(p => p.necesita_montaj_profesionist === need);
+}
+```
+
+Explicație:
+- filtrează după proprietatea booleană `necesita_montaj_profesionist`.
+
+```js
+if (filtre.categorii && filtre.categorii.length) {
+  const set = new Set(Array.isArray(filtre.categorii) ? filtre.categorii : [filtre.categorii]);
+  list = list.filter(p => set.has(p.categorie));
+}
+```
+
+Explicație:
+- filtrează după categoria mare, folosind un set pentru performanță.
+
+```js
+if (filtre.compat_text) {
+  const raw = normalize(filtre.compat_text).trim();
+  if (raw) list = list.filter(p => (p.compatibilitate || []).some(c => normalize(c).includes(raw)));
+}
+```
+
+Explicație:
+- filtrează după caracteristica cu mai multe valori (`compatibilitate`).
+- Se verifică dacă oricare dintre valorile din vector conține textul căutat.
+
+```js
+if (filtre.culoare && filtre.culoare !== 'oricare') {
+  list = list.filter(p => normalize(p.culoare) === normalize(filtre.culoare));
+}
+```
+
+Explicație:
+- filtrează după culoare, o singură valoare string.
+
+```js
+if (filtre.materiale_multi && filtre.materiale_multi.length) {
+  const arr = Array.isArray(filtre.materiale_multi) ? filtre.materiale_multi : [filtre.materiale_multi];
+  const set = new Set(arr.map(normalize));
+  list = list.filter(p => set.has(normalize(p.material)));
+}
+```
+
+Explicație:
+- filtrează după mai multe valori pentru material.
+
+--------------------------------------------------------------------------------
+9) SORTAREA PRODUSELOR
+Proveniență: index.js
+
+Cod relevant:
+```js
+function aplicaSortare(produse, cheie, ordine) {
+  const copy = [...produse];
+  const dir = ordine === 'desc' ? -1 : 1;
+  const cheiFolosite = Array.isArray(cheie) ? cheie : [cheie];
+  copy.sort((a, b) => {
+    for (const k of cheiFolosite) {
+      let va, vb;
+      switch (k) {
+        case 'nume': va = a.nume; vb = b.nume; break;
+        case 'descriere_lungime': va = (a.descriere || '').length; vb = (b.descriere || '').length; break;
+        case 'pret': va = parseFloat(a.pret); vb = parseFloat(b.pret); break;
+        case 'putere': va = a.putere_castigata_hp; vb = b.putere_castigata_hp; break;
+        case 'data': va = new Date(a.data_adaugare).getTime(); vb = new Date(b.data_adaugare).getTime(); break;
+        default: va = a.nume; vb = b.nume;
+      }
+      if (va < vb) return -1 * dir;
+      if (va > vb) return 1 * dir;
+    }
+    return 0;
+  });
+  return copy;
+}
+```
+
+Explicație:
+- sortează produsele după una sau mai multe chei.
+- `dir` determină dacă este crescător sau descrescător.
+- `cheiFolosite` permite să se sorteze după mai multe criterii.
+
+--------------------------------------------------------------------------------
+10) PAGINAREA PRODUSELOR
+Proveniență: index.js
+
+Cod relevant:
+```js
+const K = 8;
+const pagina = parseInt(req.query.pagina || '1', 10);
+const total = filtrate.length;
+const totalPagini = Math.max(1, Math.ceil(total / K));
+const paginate = filtrate.slice((pagina - 1) * K, pagina * K);
+```
+
+Explicație:
+- `K` = numărul de produse afișate pe pagină.
+- `pagina` = pagina curentă citită din query string.
+- `total` = numărul total de rezultate după filtre.
+- `totalPagini` = numărul total de pagini.
+- `slice(...)` selectează doar produsele din intervalul paginii curente.
+
+--------------------------------------------------------------------------------
+11) RENDERAREA PAGINII DE PRODUSE
+Proveniență: index.js
+
+Cod relevant:
+```js
+res.render('pagini/produse', {
+  title: 'Catalog produse',
+  produse: hidratate,
+  total,
+  pagina,
+  totalPagini,
+  catMeniu,
+  pretMinReal, pretMaxReal,
+  materialeDistincte, culoriDistincte,
+  filtre: { ...filtre, sort_cheie: sortCheie, sort_ordine: sortOrdine },
+});
+```
+
+Explicație:
+- Trimite datele către template-ul EJS.
+- `produse` = produsele care vor fi afișate pe pagină.
+- `total` = numărul total de rezultate.
+- `pretMinReal`, `pretMaxReal` = valori reale pentru inputurile range.
+- `materialeDistincte`, `culoriDistincte` = valori pentru datalist și select simplu.
+
+--------------------------------------------------------------------------------
+12) STRUCTURA PAGINII DE PRODUSE (FORMULARUL ȘI FILTRELE)
+Proveniență: views/pagini/produse.ejs
+
+Cod relevant:
+```ejs
+<form class="filter-panel" id="form-filtre" action="/produse" method="GET" data-testid="catalog-filter-panel">
+```
+
+Explicație:
+- Creează formularul principal pentru filtre și sortare.
+- Aici sunt introduse toate inputurile cerute în enunț.
+
+13) INPUTUL DE TIP TEXT
+Cod relevant:
+```ejs
+<input type="text" name="nume" class="form-control form-control-sm" value="<%= filtre.nume || '' %>"
+       placeholder="ex: spoiler* sau *carbon*"
+       data-onchange-filter data-testid="filter-nume">
+```
+
+Explicație:
+- Creează inputul pentru numele produsului.
+- `name="nume"` este folosit de server pentru filtrare.
+- `value="<%= filtre.nume || '' %>"` păstrează valoarea după submit.
+
+--------------------------------------------------------------------------------
+14) INPUTURILE DE TIP RANGE PENTRU PREȚ
+Cod relevant:
+```ejs
+<input type="range" name="pret_min" class="form-range" min="<%= Math.floor(pretMinReal) %>" max="<%= Math.ceil(pretMaxReal) %>"
+       step="10" value="<%= filtre.pret_min || Math.floor(pretMinReal) %>"
+       data-onchange-filter data-target-value="pret-min-val" data-testid="filter-pret-min">
+```
+
+Explicație:
+- Creează primul range pentru prețul minim.
+- `min` și `max` sunt setate pe baza prețului real din DB.
+- `value` păstrează nivelul curent.
+
+```ejs
+<input type="range" name="pret_max" class="form-range" min="<%= Math.floor(pretMinReal) %>" max="<%= Math.ceil(pretMaxReal) %>"
+       step="10" value="<%= filtre.pret_max || Math.ceil(pretMaxReal) %>"
+       data-onchange-filter data-target-value="pret-max-val" data-testid="filter-pret-max">
+```
+
+Explicație:
+- Creează al doilea range pentru prețul maxim.
+
+--------------------------------------------------------------------------------
+15) DATALIST PENTRU MATERIAL
+Cod relevant:
+```ejs
+<input type="text" name="material_datalist" list="lst-mat" class="form-control form-control-sm"
+       value="<%= filtre.material_datalist || '' %>" placeholder="Scrie sau alege..."
+       data-onchange-filter data-testid="filter-material-datalist">
+<datalist id="lst-mat">
+  <% materialeDistincte.forEach(function(m) { %>
+    <option value="<%= m %>"><%= m %></option>
+  <% }); %>
+</datalist>
+```
+
+Explicație:
+- Creează un input tip text cu sugestii.
+- `datalist` este populat din valorile reale ale câmpului `material` din DB.
+
+--------------------------------------------------------------------------------
+16) GRUP DE RADIO BUTTONS PENTRU MONTAJ
+Cod relevant:
+```ejs
+<div class="d-flex gap-2 flex-wrap" data-testid="filter-montaj-group">
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="montaj" value="orice" id="mnt-orice" ...>
+    <label class="form-check-label" for="mnt-orice">Oricare</label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="montaj" value="da" id="mnt-da" ...>
+    <label class="form-check-label" for="mnt-da">Da</label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="montaj" value="nu" id="mnt-nu" ...>
+    <label class="form-check-label" for="mnt-nu">Nu</label>
+  </div>
+</div>
+```
+
+Explicație:
+- Creează un grup de radio buttons pentru filtrarea după câmpul boolean `necesita_montaj_profesionist`.
+- Opțiunea „Oricare” este opțiunea generală și implicită.
+
+--------------------------------------------------------------------------------
+17) CHECKBOXES PENTRU CATEGORII
+Cod relevant:
+```ejs
+<% categorii.forEach(function(c) { %>
+  <input type="checkbox" class="btn-check" name="categorii" value="<%= c %>" id="<%= id %>"
+         <%= chk ? 'checked' : '' %> data-onchange-filter>
+  <label class="btn btn-sm btn-outline-danger" for="<%= id %>"><%= c %></label>
+<% }); %>
+```
+
+Explicație:
+- Generează checkbox-uri pentru fiecare categorie mare.
+- Folosește Bootstrap `btn-check` pentru stilul de toggle buttons.
+
+--------------------------------------------------------------------------------
+18) TEXTAREA PENTRU COMPATIBILITATE
+Cod relevant:
+```ejs
+<textarea name="compat_text" id="ta-compat" class="form-control <%= filtre.compat_text && filtre.compat_text.length < 3 ? 'is-invalid' : '' %>"
+          style="height: 80px" placeholder="ex: BMW E46"
+          data-onchange-filter data-testid="filter-compat"><%= filtre.compat_text || '' %></textarea>
+```
+
+Explicație:
+- Creează textarea pentru filtrarea după compatibilitate.
+- Clasa `is-invalid` apare dacă valoarea este prea scurtă.
+- Valorile sunt folosite pentru filtrare la server.
+
+--------------------------------------------------------------------------------
+19) SELECT SIMPLU PENTRU CULOARE
+Cod relevant:
+```ejs
+<select name="culoare" class="form-select form-select-sm" data-onchange-filter data-testid="filter-culoare">
+  <option value="oricare" ...>Oricare</option>
+  <% culoriDistincte.forEach(function(c) { %>
+    <option value="<%= c %>" ...><%= c %></option>
+  <% }); %>
+</select>
+```
+
+Explicație:
+- Creează un select simplu pentru `culoare`.
+- Prima opțiune este „Oricare”, care înseamnă că nu se aplică filtrul.
+
+--------------------------------------------------------------------------------
+20) SELECT MULTIPLU PENTRU MATERIALE
+Cod relevant:
+```ejs
+<select name="materiale_multi" multiple size="4" class="form-select form-select-sm" data-onchange-filter data-testid="filter-materiale-multi">
+  <% materialeDistincte.forEach(function(m) { %>
+    <option value="<%= m %>"><%= m %></option>
+  <% }); %>
+</select>
+```
+
+Explicație:
+- Creează un select multiplu pentru a filtra după mai multe materiale simultan.
+- `multiple` permite selecția mai multor valori.
+
+--------------------------------------------------------------------------------
+21) SORTAREA DUPĂ CHEI
+Cod relevant:
+```ejs
+<select name="sort_cheie" class="form-select form-select-sm mb-2" data-onchange-filter data-testid="filter-sort-cheie">
+  <option value="nume">După nume</option>
+  <option value="pret">După preț</option>
+  <option value="putere">După CP câștigați</option>
+  <option value="data">După data adăugării</option>
+  <option value="descriere_lungime">După lungimea descrierii</option>
+</select>
+```
+
+Explicație:
+- Permite alegerea cheii de sortare.
+- Valorile folosite sunt cele suportate de `aplicaSortare`.
+
+--------------------------------------------------------------------------------
+22) BUTOANE DE ACȚIUNE
+Cod relevant:
+```ejs
+<button type="submit" class="btn btn-tuning" data-testid="btn-filtreaza">...</button>
+<button type="button" class="btn btn-outline-warning btn-sm" id="btn-calculeaza" ...>...</button>
+<button type="button" class="btn btn-outline-danger btn-sm" id="btn-reset" ...>...</button>
+```
+
+Explicație:
+- Butonul de filtrare trimite formularul către server.
+- Butonul de calculare face o operație locală pe rezultate.
+- Butonul de reset reîncarcă pagina catalogului.
+
+--------------------------------------------------------------------------------
+23) AFIȘAREA PRODUSELOR PE PAGINĂ
+Proveniență: views/pagini/produse.ejs
+
+Cod relevant:
+```ejs
+<% if (produse.length === 0) { %>
+  <div class="alert alert-info text-center" data-testid="msg-fara-produse">
+    <h4 class="mt-2">Nu există produse care să corespundă filtrelor.</h4>
+  </div>
+<% } else { %>
+  <div class="row g-4">
+    <% produse.forEach(function(p) { %>
+      <div class="col-md-6 col-xl-4"><%- include('../partials/card-produs', { produs: p }) %></div>
+    <% }); %>
+  </div>
+<% } %>
+```
+
+Explicație:
+- Dacă nu există rezultate după filtre, se afișează mesajul corespunzător.
+- În caz contrar, se afisează fiecare produs în carduri în interiorul unui grid Bootstrap.
+
+--------------------------------------------------------------------------------
+24) TEMPLATE-UL CARDULUI DE PRODUS
+Proveniență: views/partials/card-produs.ejs
+
+Cod relevant:
+```ejs
+<div class="product-card card reveal" data-produs-id="<%= p.id %>" data-testid="product-card-<%= p.id %>">
+```
+
+Explicație:
+- Definește cardul produsului pentru pagina de produse.
+- Aici se afișează imaginea, numele, categoria, prețul și badge-urile relevante.
+
+25) AFIȘAREA IMAGINILOR MULTIPLE PE CARDUL PRODUSULUI
+Cod relevant:
+```ejs
+<% if (areImaginiExtra) { %>
+  <div id="<%= carId %>" class="carousel slide h-100" data-bs-ride="carousel" data-testid="product-carousel-<%= p.id %>">
+    <div class="carousel-inner h-100">
+      <div class="carousel-item active h-100">
+        <img src="<%= p.imagine %>" class="d-block w-100 h-100" alt="<%= p.nume %>" loading="lazy">
+      </div>
+      <% p.imagini_extra.forEach(function(img) { %>
+        <div class="carousel-item h-100">
+          <img src="<%= img %>" class="d-block w-100 h-100" alt="<%= p.nume %>" loading="lazy">
+        </div>
+      <% }); %>
+    </div>
+  </div>
+<% } else { %>
+  <img src="<%= p.imagine %>" alt="<%= p.nume %>" loading="lazy">
+<% } %>
+```
+
+Explicație:
+- Dacă produsul are `imagini_extra`, se afișează un carousel Bootstrap.
+- În caz contrar, se afișează doar imaginea principală.
+
+--------------------------------------------------------------------------------
+26) PAGINA PRODUSULUI UNIC
+Proveniență: views/pagini/produs.ejs
+
+Cod relevant:
+```ejs
+<% 
+  const luni = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  const zileSapt = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+  const dt = new Date(produs.data_adaugare);
+  const dataFormatata = dt.getDate() + '/' + luni[dt.getMonth()] + '/' + dt.getFullYear() + ' (' + zileSapt[dt.getDay()] + ')';
+%>
+```
+
+Explicație:
+- Formatează data în limba română pentru pagina produsului unic.
+
+Apoi, pentru imaginea principală și imaginile suplimentare:
+```ejs
+<% if (areImaginiExtra) { %>
+  <div id="prod-detail-carousel" class="carousel slide" data-bs-ride="carousel" data-testid="produs-carousel">
+    <div class="carousel-inner" style="border: 1px solid var(--tuning-border);">
+      <div class="carousel-item active">
+        <img src="<%= produs.imagine %>" class="d-block w-100" alt="<%= produs.nume %>">
+      </div>
+      <% produs.imagini_extra.forEach(function(img) { %>
+        <div class="carousel-item">
+          <img src="<%= img %>" class="d-block w-100">
+        </div>
+      <% }); %>
+    </div>
+  </div>
+<% } else { %>
+  <img src="<%= produs.imagine %>" alt="<%= produs.nume %>" class="w-100">
+<% } %>
+```
+
+Explicație:
+- Afișează imaginea principală plus imaginile suplimentare pe pagină.
+
+--------------------------------------------------------------------------------
+27) RUTA PENTRU PRODUSUL UNIC
+Proveniență: index.js
+
+Cod relevant:
+```js
+app.get('/produs/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (Number.isNaN(id)) return res.status(400).send('ID invalid');
+    const r = await query('SELECT * FROM produse WHERE id = $1', [id]);
+```
+
+Explicație:
+- Primește ID-ul produsului din URL.
+- Interoghează baza de date pentru acel produs.
+- Trimite produsele către template-ul `produs.ejs`.
+
+--------------------------------------------------------------------------------
+28) PRODUSE SIMILARE (BONUS 16)
+Proveniență: index.js
+
+Cod relevant:
+```js
+const simRes = await query(
+  'SELECT * FROM produse WHERE categorie = $1 AND id <> $2 ORDER BY ABS(pret - $3) ASC LIMIT 4',
+  [produs.categorie, produs.id, produs.pret]
+);
+const similare = simRes.rows.map(p => aplicaOferta(marcheazaNou(p), oferte));
+```
+
+Explicație:
+- Selectează produse similare pe baza categoriei și a prețului.
+- Le trimite către template-ul produsului unic.
+
+--------------------------------------------------------------------------------
+29) PRODUSELE NOU / MARCAJ DE NOU
+Proveniență: index.js
+
+Cod relevant:
+```js
+const T_NOU_ZILE = 30;
+function marcheazaNou(p) {
+  const acum = new Date();
+  const data = new Date(p.data_adaugare);
+  p._este_nou = (acum - data) < (T_NOU_ZILE * 24 * 3600 * 1000);
+  return p;
+}
+```
+
+Explicație:
+- Marchează produsele considerate noi dacă data adăugării este recentă.
+
+--------------------------------------------------------------------------------
+30) CELE MAI IEFTINE PRODUSE PE CATEGORIE (BONUS 14)
+Proveniență: index.js
+
+Cod relevant:
+```js
+async function calcCeiMaiIeftini() {
+  const r = await query(`
+    SELECT DISTINCT ON (categorie) id, categorie FROM produse
+    ORDER BY categorie, pret ASC
+  `);
+  return new Set(r.rows.map(x => x.id));
+}
+```
+
+Explicație:
+- Găsește cel mai ieftin produs din fiecare categorie.
+- Acest rezultat este folosit pentru a marca produse în UI.
+
+--------------------------------------------------------------------------------
+31) NUMĂRUL TOTAL DE PRODUSE AFIȘATE (BONUS 15)
+Proveniență: views/pagini/produse.ejs
+
+Cod relevant:
+```ejs
+Rezultate <strong data-testid="contor-produse"><%= total %></strong> produse.
+```
+
+Explicație:
+- Afișează numărul total de produse rezultate după filtrare.
+
+--------------------------------------------------------------------------------
+32) SISTEMUL DE OFERTE (BONUS 12) – Părți relevante
+Proveniență: index.js
+
+Cod relevant:
+```js
+const CALE_OFERTE = path.join(__dirname, 'oferte.json');
+const T_GENERARE_MS  = 2 * 60 * 1000;
+const T2_CLEANUP_MS  = 5 * 60 * 1000;
+const DURATA_OFERTA  = 4 * 60 * 1000;
+```
+
+Explicație:
+- Inițializează sistemul de oferte pentru prețuri reduse.
+
+```js
+function aplicaOferta(produs, oferte) {
+  const o = oferte.find(o => o.id_produs === produs.id && o.expira_la > Date.now());
+  if (o) {
+    produs._oferta = o;
+    produs._pret_vechi = o.pret_vechi;
+    produs._pret_afisat = o.pret_nou;
+  } else {
+    produs._pret_afisat = parseFloat(produs.pret);
+  }
+  return produs;
+}
+```
+
+Explicație:
+- Aplică oferta produsului dacă există o ofertă activă.
+
+--------------------------------------------------------------------------------
+33) TIMERUL PENTRU OFERTE
+Proveniență: resurse/js/oferte.js
+
+Cod relevant:
+```js
+(function() {
+  const timers = document.querySelectorAll('.oferta-timer[data-expira]');
+  if (!timers.length) return;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function format(ms) {
+    if (ms <= 0) return '00:00:00';
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return pad(h) + ':' + pad(m) + ':' + pad(sec);
+  }
+```
+
+Explicație:
+- Transformă timpul rămas în format `HH:MM:SS`.
+
+```js
+function tick() {
+  const acum = Date.now();
+  timers.forEach(t => {
+    const expira = parseInt(t.dataset.expira, 10);
+    const ramas = expira - acum;
+    t.textContent = format(ramas);
+    if (ramas <= 10000 && ramas > 0) t.classList.add('critical');
+    else t.classList.remove('critical');
+    if (ramas <= 0) t.textContent = 'EXPIRAT';
+  });
+}
+```
+
+Explicație:
+- Actualizează în fiecare secundă timpul rămas.
+- Dacă sunt ultimele 10 secunde, adaugă clasa `critical`.
+
+--------------------------------------------------------------------------------
+34) REZUMAT FINAL
+Blocurile de cod importante pentru cerința de pagină produse și produs unic sunt:
+- [db/init.sql](db/init.sql) – structura bazei de date
+- [db/seed.sql](db/seed.sql) – datele exemple
+- [index.js](index.js) – filtrare, sortare, paginare, rută pentru produse și produs unic
+- [views/pagini/produse.ejs](views/pagini/produse.ejs) – formularul și afișarea produselor
+- [views/partials/card-produs.ejs](views/partials/card-produs.ejs) – template-ul cardului produsului
+- [views/pagini/produs.ejs](views/pagini/produs.ejs) – pagina produsului unic
+- [resurse/js/oferte.js](resurse/js/oferte.js) – timer pentru oferte
+
+Dacă vrei, în continuare pot să fac un al doilea fișier, de exemplu et6_simplu.txt, în care să transform totul într-o variantă și mai scurtă, de tip „cheie → locație în cod → ce face”.

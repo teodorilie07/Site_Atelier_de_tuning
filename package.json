@@ -1,18 +1,19 @@
 {
-  "name": "tw_proiect",
+  "name": "tuning-shop",
   "version": "1.0.0",
-  "description": "",
+  "description": "Atelier Tuning Auto - Proiect Tehnologii Web (Node.js + Express + EJS + PostgreSQL)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "ejs": "^5.0.2",
-    "express": "^5.2.1",
-    "sass": "^1.100.0"
+    "bootstrap": "^5.3.8",
+    "chokidar": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "sass": "^1.83.0"
   }
 }

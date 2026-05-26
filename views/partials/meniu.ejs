@@ -1,0 +1,57 @@
+<nav id="nav-principal" data-testid="navbar-main">
+  <ul class="meniu">
+    <li class="item-acasa">
+      <a href="/" class="<%= currentPath === '/' ? 'active' : '' %>" data-testid="nav-home">
+        <i class="fa-solid fa-house"></i> <span>Acasă</span>
+      </a>
+      <ul class="submeniu">
+        <li><a href="/#welcome">Bine ați venit</a></li>
+        <li><a href="/#promotii">Promoții</a></li>
+        <li><a href="/#zona2">Orar Lucru</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="/produse" class="<%= currentPath === '/produse' ? 'active' : '' %>" data-testid="nav-produse">
+        <i class="fa-solid fa-images"></i> <span>Galerii</span>
+      </a>
+      <ul class="submeniu">
+        <li><a href="/produse" data-testid="menu-cat-all">Toate produsele</a></li>
+        <% categorii.forEach(function(c) { %>
+          <li>
+            <a href="/produse?categorie=<%= encodeURIComponent(c) %>" data-testid="menu-cat-<%= c.toLowerCase() %>">
+              <%= c %>
+            </a>
+          </li>
+        <% }); %>
+      </ul>
+    </li>
+    <li>
+      <a href="/produse" data-testid="nav-produse-direct">
+        <i class="fa-solid fa-cart-shopping"></i> <span>Produse</span>
+      </a>
+    </li>
+    <li>
+      <a href="/seturi" class="<%= currentPath === '/seturi' ? 'active' : '' %>" data-testid="nav-seturi">
+        <i class="fa-solid fa-box-open"></i> <span>Seturi</span>
+      </a>
+    </li>
+    <li>
+      <a href="#" data-testid="nav-inregistrare">
+        <i class="fa-solid fa-user-plus"></i> <span>Înregistrare</span>
+      </a>
+    </li>
+    <li style="margin-left:auto;">
+      <div class="theme-switch" data-testid="theme-switch">
+        <button data-theme="light" data-testid="theme-btn-light" title="Light pastel" class="active">
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <button data-theme="peach" data-testid="theme-btn-industrial" title="Peach warm">
+          <i class="fa-solid fa-mug-hot"></i>
+        </button>
+        <button data-theme="dark" data-testid="theme-btn-dark" title="Dark cozy">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </li>
+  </ul>
+</nav>

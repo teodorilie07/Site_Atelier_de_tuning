@@ -1,0 +1,175 @@
+{
+  "project_context": {
+    "domain": "Automotive Tuning & Garage E-commerce",
+    "theme_preference": "Dark/Racing (Default) + Light + Modern Industrial",
+    "archetype": "Archetype 2: The Performance Pro (Modified for Automotive Tuning)",
+    "aesthetic_vibe": "Aggressive, high-performance, precision, mechanical, energetic. Subtle carbon fiber textures. Asymmetrical layout."
+  },
+  "design_system": {
+    "typography": {
+      "primary_font": {
+        "family": "'Rajdhani', sans-serif",
+        "usage": "Headings, Hero Text, Badges, Prices, Timers",
+        "weights": [500, 600, 700],
+        "letter_spacing": "tracking-tight (-0.02em to -0.05em)"
+      },
+      "secondary_font": {
+        "family": "'Exo 2', sans-serif",
+        "usage": "Body Text, Descriptions, Filter Labels, UI Elements",
+        "weights": [400, 500],
+        "letter_spacing": "normal"
+      },
+      "rules": [
+        "Never use generic fonts like Inter, Roboto, or system-ui.",
+        "Headers must be tight and imposing.",
+        "All uppercase for badges and buttons with slight letter-spacing."
+      ]
+    },
+    "themes": {
+      "dark_racing": {
+        "is_default": true,
+        "description": "Black + Red/Orange accents, aesthetic garage",
+        "colors": {
+          "primary": "#E63946",
+          "secondary": "#FF8C00",
+          "background": "#0B0C10",
+          "surface": "#1F2833",
+          "surface_hover": "#2B3642",
+          "text_primary": "#FFFFFF",
+          "text_secondary": "#C5C6C7",
+          "border": "#333333",
+          "badge_new": "#E63946",
+          "badge_cheapest": "#2A9D8F",
+          "timer_text": "#FFB703"
+        },
+        "textures": {
+          "body": "Subtle noise overlay (opacity 0.03)",
+          "hero": "Carbon fiber texture blending into dark bottom via CSS gradient"
+        }
+      },
+      "modern_industrial": {
+        "is_default": false,
+        "description": "Graphite + Yellow/Carbon fiber texture",
+        "colors": {
+          "primary": "#F4D03F",
+          "secondary": "#E67E22",
+          "background": "#121212",
+          "surface": "#2C3E50",
+          "surface_hover": "#34495E",
+          "text_primary": "#F8F9FA",
+          "text_secondary": "#BDC3C7",
+          "border": "#454545",
+          "badge_new": "#F4D03F",
+          "badge_cheapest": "#27AE60",
+          "timer_text": "#E74C3C"
+        },
+        "textures": {
+          "body": "Hex pattern or metallic grain background (opacity 0.05)"
+        }
+      },
+      "light_clean": {
+        "is_default": false,
+        "description": "High contrast, sterile garage look",
+        "colors": {
+          "primary": "#D90429",
+          "secondary": "#2B2D42",
+          "background": "#F8F9FA",
+          "surface": "#FFFFFF",
+          "surface_hover": "#E9ECEF",
+          "text_primary": "#1A1A1D",
+          "text_secondary": "#4A4E69",
+          "border": "#DEE2E6",
+          "badge_new": "#D90429",
+          "badge_cheapest": "#028090",
+          "timer_text": "#F77F00"
+        }
+      }
+    },
+    "spacing_and_layout": {
+      "grid": "Bootstrap 5 grid system. Use offset classes to create intentional asymmetry (e.g., .col-lg-7 .offset-lg-1).",
+      "containers": "Prefer fluid containers (.container-fluid) with generous horizontal padding (px-4 px-md-5) over strict boxed layouts.",
+      "cards": "Sharp edges (border-radius: 2px or 0px) to maintain the brutalist/industrial mechanic feel."
+    },
+    "components": {
+      "product_card": {
+        "layout": "Vertical stack. Image on top with aspect ratio 4:3. Title, price, buttons below.",
+        "badges": "Position absolute top-left/right. NOU (primary bg), OFERTĂ (warning bg + timer), CEL MAI IEFTIN (success bg). Font: Rajdhani bold, uppercase.",
+        "price_treatment": "Strikethrough for old price (.text-muted .text-decoration-line-through). New price in large, bold primary color.",
+        "interactions": "Image scales up 1.05x on hover. Card border shifts to primary color.",
+        "data_testid": "product-card-{id}"
+      },
+      "filter_panel": {
+        "layout": "Sidebar (col-lg-3). Position sticky top to viewport on scroll.",
+        "styling": "Surface background color. Dense padding (p-3 p-md-4). Border-right for separation.",
+        "inputs": "Bootstrap custom forms (.form-range, .form-check). Override radio/checkbox to use solid squares or sharp ticks.",
+        "data_testid": "catalog-filter-panel"
+      },
+      "timer_offer": {
+        "styling": "Monospace digits (Rajdhani). Red or Yellow glow (box-shadow or text-shadow) indicating urgency. Format: HH:MM:SS.",
+        "data_testid": "offer-countdown-timer"
+      },
+      "comparison_tray": {
+        "layout": "Position fixed, bottom 0, width 100%, z-index 1050.",
+        "styling": "Glassmorphism over dark background (backdrop-filter: blur(10px); background: rgba(0,0,0,0.8)). Slide up animation on active.",
+        "data_testid": "comparison-tray-bottom"
+      },
+      "hero_section": {
+        "layout": "Min-height 80vh. Asymmetrical split. Text heavy on left, HP Chip/Car abstract visual on right.",
+        "overlay": "Dark gradient overlay (bg-dark to transparent) max opacity 50% so background car is visible.",
+        "data_testid": "homepage-hero"
+      }
+    },
+    "micro_interactions": {
+      "buttons": "Skewed button shapes via CSS transform: skewX(-10deg) for main CTAs. Un-skew the inner text. Add 2px solid border, transparent bg, fills on hover.",
+      "theme_switch": "Sun/Moon/Wrench icons for 3-theme toggle. Quick fade transition on body background."
+    },
+    "icons": {
+      "library": "Bootstrap Icons for UI elements, FontAwesome for specific automotive vectors if needed.",
+      "usage": "Use sharp/linear variants where possible."
+    },
+    "media": {
+      "hero_backgrounds": [
+        {
+          "url": "https://images.unsplash.com/photo-1747115986467-a4510549984f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwxfHxyYWNlJTIwY2FyJTIwZ2FyYWdlfGVufDB8fHx8MTc4MzQ2MjcyMnww&ixlib=rb-4.1.0&q=85",
+          "description": "A race car with bright headlights in a dark garage. Perfect for main hero bg."
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1747115986537-066190397878?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwyfHxyYWNlJTIwY2FyJTIwZ2FyYWdlfGVufDB8fHx8MTc4MzQ2MjcyMnww&ixlib=rb-4.1.0&q=85",
+          "description": "Green race car in pit lane. Good for alternate section."
+        }
+      ],
+      "textures": [
+        {
+          "url": "https://images.unsplash.com/photo-1684667084014-aa6916a3f00d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxjYXJib24lMjBmaWJlcnxlbnwwfHx8fDE3ODM0NjI3MjJ8MA&ixlib=rb-4.1.0&q=85",
+          "description": "Carbon fiber texture. Use as a low-opacity repeating background or section overlay."
+        }
+      ],
+      "product_placeholders": [
+        {
+          "url": "https://images.unsplash.com/photo-1542377281-73d08e3a10aa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxhbGxveSUyMHdoZWVsfGVufDB8fHx8MTc4MzQ2MjcyMnww&ixlib=rb-4.1.0&q=85",
+          "category": "Jante / Wheels"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1621712151262-60bd142ba19f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwyfHxhbGxveSUyMHdoZWVsfGVufDB8fHx8MTc4MzQ2MjcyMnww&ixlib=rb-4.1.0&q=85",
+          "category": "Caroserie / Exterior"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1725289339928-06ee31684df5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwxfHxjYXIlMjBlbmdpbmV8ZW58MHx8fHwxNzgzNDYyNzIyfDA&ixlib=rb-4.1.0&q=85",
+          "category": "Motor / Chip Tuning"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1527383418406-f85a3b146499?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwyfHxjYXIlMjBlbmdpbmV8ZW58MHx8fHwxNzgzNDYyNzIyfDA&ixlib=rb-4.1.0&q=85",
+          "category": "Evacuări / Engine parts"
+        }
+      ]
+    },
+    "implementation_instructions_to_main_agent": [
+      "Use Node.js, Express, and EJS as requested. Do NOT use React or Tailwind.",
+      "Compile custom SASS to override Bootstrap variables ($primary, $body-bg, etc.) based on the 3 themes.",
+      "Implement a mechanism to switch 'data-bs-theme' attribute on the <html> tag (light, dark, industrial).",
+      "Ensure all required filters (wildcard, 2x range, datalist, radio, checkbox, textarea, single select, multi select) are present in the sticky sidebar.",
+      "Use data-testid attributes on ALL interactive elements as defined.",
+      "Use the provided Unsplash URLs for seeded DB data and background aesthetics."
+    ]
+  }
+}

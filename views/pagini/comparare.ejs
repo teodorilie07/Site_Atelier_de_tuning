@@ -1,0 +1,106 @@
+<%- include('../partials/header') %>
+
+<section class="section-tuning">
+  <div class="container-fluid px-4 px-lg-5">
+    <h2><span class="stripe"></span>Comparare produse</h2>
+
+    <% if (eroare) { %>
+      <div class="alert alert-warning" data-testid="comparare-eroare">
+        <i class="bi bi-exclamation-triangle-fill"></i> <%= eroare %>
+      </div>
+      <a href="/produse" class="btn btn-tuning"><span>Alege produse</span></a>
+    <% } else { %>
+      <div class="table-responsive">
+        <table class="tabel-detalii" data-testid="tabel-comparare">
+          <thead>
+            <tr>
+              <th>Caracteristică</th>
+              <% produse.forEach(function(p) { %>
+                <th style="text-align:center;">
+                  <img src="<%= p.imagine %>" alt="<%= p.nume %>" style="width:100%; max-width:180px; aspect-ratio:4/3; object-fit:cover; border-radius:2px; display:block; margin:0 auto 0.5rem;">
+                  <a href="/produs/<%= p.id %>" style="color: var(--tuning-primary); text-decoration:none; font-family:'Rajdhani',sans-serif;">
+                    <%= p.nume %>
+                  </a>
+                </th>
+              <% }); %>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Categorie</td>
+              <% produse.forEach(function(p) { %><td style="text-align:center;"><%= p.categorie %></td><% }); %>
+            </tr>
+            <tr>
+              <td>Material</td>
+              <% produse.forEach(function(p) { %><td style="text-align:center;"><%= p.material %></td><% }); %>
+            </tr>
+            <tr>
+              <td>Preț</td>
+              <% 
+                const preturi = produse.map(p => parseFloat(p.pret));
+                const min = Math.min(...preturi);
+              %>
+              <% produse.forEach(function(p) { 
+                   const val = parseFloat(p.pret);
+                   const highlight = val === min ? 'color:var(--tuning-badge-cheapest);font-weight:700;' : '';
+              %>
+                <td style="text-align:center; <%= highlight %>">
+                  <%= val.toFixed(2) %> RON
+                  <% if (val === min && produse.length > 1) { %><br><small style="text-transform:uppercase;">↑ mai ieftin</small><% } %>
+                </td>
+              <% }); %>
+            </tr>
+            <tr>
+              <td>Putere câștigată</td>
+              <% 
+                const puteri = produse.map(p => p.putere_castigata_hp);
+                const maxCP = Math.max(...puteri);
+              %>
+              <% produse.forEach(function(p) { 
+                   const highlight = p.putere_castigata_hp === maxCP && maxCP > 0 ? 'color:var(--tuning-secondary);font-weight:700;' : '';
+              %>
+                <td style="text-align:center; <%= highlight %>">
+                  <%= p.putere_castigata_hp %> CP
+                  <% if (p.putere_castigata_hp === maxCP && maxCP > 0 && produse.length > 1) { %><br><small style="text-transform:uppercase;">↑ mai puternic</small><% } %>
+                </td>
+              <% }); %>
+            </tr>
+            <tr>
+              <td>Culoare</td>
+              <% produse.forEach(function(p) { %><td style="text-align:center;"><%= p.culoare %></td><% }); %>
+            </tr>
+            <tr>
+              <td>Data adăugare</td>
+              <% produse.forEach(function(p) { %>
+                <td style="text-align:center;"><%= new Date(p.data_adaugare).toLocaleDateString('ro-RO') %></td>
+              <% }); %>
+            </tr>
+            <tr>
+              <td>Compatibilitate</td>
+              <% produse.forEach(function(p) { %>
+                <td style="text-align:center; font-size:0.85rem;"><%= (p.compatibilitate || []).join(', ') %></td>
+              <% }); %>
+            </tr>
+            <tr>
+              <td>Montaj profesionist</td>
+              <% produse.forEach(function(p) { %>
+                <td style="text-align:center;">
+                  <% if (p.necesita_montaj_profesionist) { %>
+                    <span class="text-warning"><i class="bi bi-check-circle-fill"></i> Da</span>
+                  <% } else { %>
+                    <span class="text-success"><i class="bi bi-check-circle-fill"></i> Nu</span>
+                  <% } %>
+                </td>
+              <% }); %>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="text-center mt-4">
+        <a href="/produse" class="btn btn-tuning-outline"><span><i class="bi bi-arrow-left"></i> Înapoi la catalog</span></a>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

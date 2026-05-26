@@ -1,0 +1,54 @@
+<footer>
+  <address id="contact">
+    <strong>Informații Contact:</strong><br>
+    Telefon fictiv: <a href="tel:+40722000000" data-testid="footer-tel">0722 000 000</a><br>
+    Email fictiv: <a href="mailto:office@tuningpro.ro" data-testid="footer-email">office@tuningpro.ro</a><br>
+    Aplicație Chat: <a href="https://wa.me/40722000000" data-testid="footer-wa">Deschide WhatsApp</a><br>
+    Adresa fizică: <a href="https://goo.gl/maps/xyz" target="_blank">
+      Facultatea de Matematica si Informatica<br>
+      Strada Academiei, Nr. 14,<br>
+      București, România
+    </a><br>
+    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.843603415175!2d26.098254215522513!3d44.4362149791024!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1ff44eb2d9a75%3A0xc6a8274d816c1417!2sFacultatea%20de%20Matematic%C4%83%20%C8%99i%20Informatic%C4%83!5e0!3m2!1sro!2sro!4v1684348232938!5m2!1sro!2sro" width="300" height="200" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </address>
+
+  <p><small>&copy; <%= new Date().getFullYear() %> Ilie Petre-Teodor · Tuning Pro Center · Proiect Tehnologii Web</small></p>
+</footer>
+
+<!-- Comparison Tray (Bonus 20) -->
+<div class="comparison-tray" id="comparison-tray" data-testid="comparison-tray">
+  <div class="container-fluid px-3">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
+      <strong style="font-family:'Madimi One',sans-serif; font-size:1.1rem;">
+        <i class="bi bi-columns-gap"></i> Comparare
+      </strong>
+      <div class="tray-slot" id="tray-slot-1" data-testid="tray-slot-1"><i class="bi bi-plus-lg"></i></div>
+      <div class="tray-slot" id="tray-slot-2" data-testid="tray-slot-2"><i class="bi bi-plus-lg"></i></div>
+      <button class="btn btn-tuning ms-auto" id="btn-comparare" data-testid="btn-comparare-deschide">
+        <span>Compară în fereastră nouă</span>
+      </button>
+      <button class="btn btn-outline-primary btn-sm" id="btn-comparare-reset" data-testid="btn-comparare-reset">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Link-top rotund pastel (ca in referinta originala) -->
+<a href="#top" id="link-top" title="Înapoi sus" data-testid="link-top" aria-label="Sus">
+  <span>🠹</span>
+</a>
+
+<!-- Bootstrap 5 Bundle JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- App client JS -->
+<script src="/resurse/js/theme.js"></script>
+<script src="/resurse/js/comparare.js"></script>
+<script src="/resurse/js/oferte.js"></script>
+<script src="/resurse/js/produs-sesiune.js"></script>
+<script src="/resurse/js/back-to-top.js"></script>
+<% if (typeof pageScript !== 'undefined' && pageScript) { %>
+  <script src="<%= pageScript %>"></script>
+<% } %>
+</body>
+</html>

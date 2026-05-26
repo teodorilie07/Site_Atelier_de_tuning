@@ -1,0 +1,192 @@
+<%- include('../partials/header') %>
+
+<!-- Header pagina -->
+<section class="section-tuning pb-3" style="padding-top:3rem;">
+  <div class="container-fluid px-4 px-lg-5">
+    <h2><span class="stripe"></span>Catalog produse
+      <% if (catMeniu) { %>
+        <small style="color:var(--tuning-primary); font-size:1.2rem;">/ <%= catMeniu %></small>
+      <% } %>
+    </h2>
+    <p style="color: var(--tuning-text-muted);">
+      Aplică filtrele din stânga pentru a găsi rapid piesa perfectă. Rezultate <strong data-testid="contor-produse"><%= total %></strong> produse.
+    </p>
+  </div>
+</section>
+
+<section class="section-tuning pt-0 pb-5">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="row g-4">
+      <!-- Filter panel -->
+      <aside class="col-lg-4 col-xl-3">
+        <form class="filter-panel" id="form-filtre" action="/produse" method="GET" data-testid="catalog-filter-panel">
+          <% if (catMeniu) { %>
+            <input type="hidden" name="categorie" value="<%= catMeniu %>">
+          <% } %>
+
+          <h5><i class="bi bi-search"></i> Nume produs</h5>
+          <input type="text" name="nume" class="form-control form-control-sm" value="<%= filtre.nume || '' %>"
+                 placeholder="ex: spoiler* sau *carbon*"
+                 data-onchange-filter data-testid="filter-nume">
+          <small class="text-muted d-block mt-1" style="font-size:0.75rem;">Wildcard: * (fără diacritice)</small>
+
+          <h5><i class="bi bi-currency-exchange"></i> Preț (RON)</h5>
+          <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem;">
+            <span>Min: <span class="range-value" id="pret-min-val" data-testid="pret-min-val"><%= filtre.pret_min || pretMinReal %></span></span>
+            <span>Max: <span class="range-value" id="pret-max-val" data-testid="pret-max-val"><%= filtre.pret_max || pretMaxReal %></span></span>
+          </div>
+          <label class="form-label mb-1" style="font-size:0.75rem;">Preț minim</label>
+          <input type="range" name="pret_min" class="form-range" min="<%= Math.floor(pretMinReal) %>" max="<%= Math.ceil(pretMaxReal) %>"
+                 step="10" value="<%= filtre.pret_min || Math.floor(pretMinReal) %>"
+                 data-onchange-filter data-target-value="pret-min-val" data-testid="filter-pret-min">
+          <label class="form-label mb-1 mt-2" style="font-size:0.75rem;">Preț maxim</label>
+          <input type="range" name="pret_max" class="form-range" min="<%= Math.floor(pretMinReal) %>" max="<%= Math.ceil(pretMaxReal) %>"
+                 step="10" value="<%= filtre.pret_max || Math.ceil(pretMaxReal) %>"
+                 data-onchange-filter data-target-value="pret-max-val" data-testid="filter-pret-max">
+
+          <h5><i class="bi bi-list"></i> Material (datalist)</h5>
+          <input type="text" name="material_datalist" list="lst-mat" class="form-control form-control-sm"
+                 value="<%= filtre.material_datalist || '' %>" placeholder="Scrie sau alege..."
+                 data-onchange-filter data-testid="filter-material-datalist">
+          <datalist id="lst-mat">
+            <% materialeDistincte.forEach(function(m) { %>
+              <option value="<%= m %>"><%= m %></option>
+            <% }); %>
+          </datalist>
+
+          <h5><i class="bi bi-wrench-adjustable"></i> Necesită montaj profesionist</h5>
+          <div class="d-flex gap-2 flex-wrap" data-testid="filter-montaj-group">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="montaj" value="orice"
+                     id="mnt-orice" <%= (!filtre.montaj || filtre.montaj === 'orice') ? 'checked' : '' %>
+                     data-onchange-filter data-testid="filter-montaj-orice">
+              <label class="form-check-label" for="mnt-orice">Oricare</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="montaj" value="da"
+                     id="mnt-da" <%= filtre.montaj === 'da' ? 'checked' : '' %>
+                     data-onchange-filter data-testid="filter-montaj-da">
+              <label class="form-check-label" for="mnt-da">Da</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="montaj" value="nu"
+                     id="mnt-nu" <%= filtre.montaj === 'nu' ? 'checked' : '' %>
+                     data-onchange-filter data-testid="filter-montaj-nu">
+              <label class="form-check-label" for="mnt-nu">Nu</label>
+            </div>
+          </div>
+
+          <h5><i class="bi bi-tags-fill"></i> Categorii (toggle buttons)</h5>
+          <div class="btn-group flex-wrap gap-1 w-100" role="group" data-testid="filter-categorii-group">
+            <% const catCurente = Array.isArray(filtre.categorii) ? filtre.categorii : (filtre.categorii ? [filtre.categorii] : []); %>
+            <% categorii.forEach(function(c) {
+                 const chk = catCurente.includes(c);
+                 const id = 'chk-cat-' + c;
+            %>
+              <input type="checkbox" class="btn-check" name="categorii" value="<%= c %>" id="<%= id %>"
+                     <%= chk ? 'checked' : '' %> data-onchange-filter data-testid="filter-cat-<%= c %>">
+              <label class="btn btn-sm btn-outline-danger" for="<%= id %>"><%= c %></label>
+            <% }); %>
+          </div>
+
+          <h5><i class="bi bi-car-front"></i> Compatibilitate</h5>
+          <div class="form-floating">
+            <textarea name="compat_text" id="ta-compat" class="form-control <%= filtre.compat_text && filtre.compat_text.length < 3 ? 'is-invalid' : '' %>"
+                      style="height: 80px" placeholder="ex: BMW E46"
+                      data-onchange-filter data-testid="filter-compat"><%= filtre.compat_text || '' %></textarea>
+            <label for="ta-compat">Ex: BMW E46 sau Golf 7</label>
+            <div class="invalid-feedback">Minim 3 caractere.</div>
+          </div>
+
+          <h5><i class="bi bi-palette-fill"></i> Culoare</h5>
+          <select name="culoare" class="form-select form-select-sm" data-onchange-filter data-testid="filter-culoare">
+            <option value="oricare" <%= (!filtre.culoare || filtre.culoare === 'oricare') ? 'selected' : '' %>>Oricare</option>
+            <% culoriDistincte.forEach(function(c) { %>
+              <option value="<%= c %>" <%= filtre.culoare === c ? 'selected' : '' %>><%= c %></option>
+            <% }); %>
+          </select>
+
+          <h5><i class="bi bi-diagram-3-fill"></i> Materiale (multi-select)</h5>
+          <select name="materiale_multi" multiple size="4" class="form-select form-select-sm" data-onchange-filter data-testid="filter-materiale-multi">
+            <% const matMulti = Array.isArray(filtre.materiale_multi) ? filtre.materiale_multi : (filtre.materiale_multi ? [filtre.materiale_multi] : []); %>
+            <% materialeDistincte.forEach(function(m) { %>
+              <option value="<%= m %>" <%= matMulti.includes(m) ? 'selected' : '' %>><%= m %></option>
+            <% }); %>
+          </select>
+
+          <h5><i class="bi bi-sort-down"></i> Sortare</h5>
+          <% const sortCheieCurenta = Array.isArray(filtre.sort_cheie) ? filtre.sort_cheie : [filtre.sort_cheie]; %>
+          <select name="sort_cheie" class="form-select form-select-sm mb-2" multiple size="4" data-onchange-filter data-testid="filter-sort-cheie">
+            <option value="nume" <%= sortCheieCurenta.includes('nume') ? 'selected' : '' %>>După nume</option>
+            <option value="pret" <%= sortCheieCurenta.includes('pret') ? 'selected' : '' %>>După preț</option>
+            <option value="putere" <%= sortCheieCurenta.includes('putere') ? 'selected' : '' %>>După CP câștigați</option>
+            <option value="data" <%= sortCheieCurenta.includes('data') ? 'selected' : '' %>>După data adăugării</option>
+            <option value="descriere_lungime" <%= sortCheieCurenta.includes('descriere_lungime') ? 'selected' : '' %>>După lungimea descrierii</option>
+          </select>
+          <small class="text-muted d-block mb-2" style="font-size:0.75rem;">Ține Ctrl/Cmd pentru a selecta mai multe criterii.</small>
+          <div class="btn-group w-100" role="group">
+            <input type="radio" class="btn-check" name="sort_ordine" value="asc" id="ord-asc"
+                   <%= (filtre.sort_ordine || 'asc') === 'asc' ? 'checked' : '' %> data-onchange-filter>
+            <label class="btn btn-sm btn-outline-light" for="ord-asc" data-testid="sort-ord-asc"><i class="bi bi-sort-alpha-down"></i> Crescător</label>
+            <input type="radio" class="btn-check" name="sort_ordine" value="desc" id="ord-desc"
+                   <%= filtre.sort_ordine === 'desc' ? 'checked' : '' %> data-onchange-filter>
+            <label class="btn btn-sm btn-outline-light" for="ord-desc" data-testid="sort-ord-desc"><i class="bi bi-sort-alpha-up"></i> Descrescător</label>
+          </div>
+
+          <!-- Butoane actiune -->
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-tuning" data-testid="btn-filtreaza"><span><i class="bi bi-funnel-fill"></i> Filtrează</span></button>
+            <button type="button" class="btn btn-outline-warning btn-sm" id="btn-calculeaza" data-testid="btn-calculeaza"><i class="bi bi-calculator"></i> Calculează</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" id="btn-reset" data-testid="btn-reset"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+          </div>
+
+          <!-- Div fix ce apare 2s -->
+          <div id="div-calcul-rezultat" class="alert alert-warning mt-3 d-none" data-testid="div-calcul-rezultat"></div>
+        </form>
+      </aside>
+
+      <!-- Rezultate -->
+      <div class="col-lg-8 col-xl-9">
+        <div id="produse-grid" data-testid="produse-grid">
+          <% if (produse.length === 0) { %>
+            <div class="alert alert-info text-center" data-testid="msg-fara-produse">
+              <i class="bi bi-emoji-frown" style="font-size: 2rem;"></i>
+              <h4 class="mt-2">Nu există produse care să corespundă filtrelor.</h4>
+              <p class="mb-0">Încearcă să resetezi filtrele sau să lărgești criteriile.</p>
+            </div>
+          <% } else { %>
+            <div class="row g-4">
+              <% produse.forEach(function(p) { %>
+                <div class="col-md-6 col-xl-4"><%- include('../partials/card-produs', { produs: p }) %></div>
+              <% }); %>
+            </div>
+
+            <!-- Paginare (Bonus 5) -->
+            <% if (totalPagini > 1) { %>
+              <nav class="mt-5" data-testid="pagination-nav">
+                <ul class="pagination justify-content-center">
+                  <% for (let pg = 1; pg <= totalPagini; pg++) {
+                       const urlParams = new URLSearchParams();
+                       Object.entries(filtre || {}).forEach(function([k, v]) {
+                         if (v == null || v === '') return;
+                         if (Array.isArray(v)) v.forEach(x => urlParams.append(k, x));
+                         else urlParams.set(k, v);
+                       });
+                       if (typeof catMeniu !== 'undefined' && catMeniu) urlParams.set('categorie', catMeniu);
+                       urlParams.set('pagina', pg);
+                  %>
+                    <li class="page-item <%= pg === pagina ? 'active' : '' %>">
+                      <a class="page-link" href="/produse?<%= urlParams.toString() %>" data-testid="page-<%= pg %>"><%= pg %></a>
+                    </li>
+                  <% } %>
+                </ul>
+              </nav>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer', { pageScript: '/resurse/js/produse.js' }) %>

@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<section class="section-tuning">
+  <div class="container-fluid px-4 px-lg-5">
+    <h2><span class="stripe"></span>Seturi cu discount</h2>
+    <p style="color: var(--tuning-text-muted); max-width: 720px;">
+      Cu cât cumperi mai multe piese dintr-un set, cu atât primești discount mai mare (până la <strong>25%</strong> pentru 5+ produse).
+    </p>
+
+    <% seturi.forEach(function(s) { %>
+      <div class="card p-4 mb-4 reveal" data-testid="set-<%= s.id %>">
+        <div class="row g-4">
+          <div class="col-lg-4">
+            <img src="<%= s.imagine %>" alt="<%= s.nume %>" class="w-100" style="aspect-ratio:4/3; object-fit:cover; border-radius:2px;">
+          </div>
+          <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+              <h3 style="font-family:'Rajdhani',sans-serif; text-transform:uppercase;"><%= s.nume %></h3>
+              <span class="badge-tuning badge-oferta">-<%= s.procentReducere %>%</span>
+            </div>
+            <p style="color: var(--tuning-text-muted);"><%= s.descriere %></p>
+
+            <table class="tabel-detalii mt-3">
+              <thead><tr><th>Produs</th><th>Preț</th></tr></thead>
+              <tbody>
+                <% s.produse.forEach(function(p) { %>
+                  <tr>
+                    <td data-label="Produs">
+                      <a href="/produs/<%= p.id %>" style="color: var(--tuning-text); text-decoration:none;">
+                        <i class="bi bi-chevron-right" style="color:var(--tuning-primary);"></i> <%= p.nume %>
+                      </a>
+                    </td>
+                    <td data-label="Preț"><%= parseFloat(p.pret).toFixed(2) %> RON</td>
+                  </tr>
+                <% }); %>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td style="border-top: 2px solid var(--tuning-border);"><strong>Preț cumulat</strong></td>
+                  <td style="border-top: 2px solid var(--tuning-border);"><span class="text-decoration-line-through text-muted"><%= s.suma.toFixed(2) %> RON</span></td>
+                </tr>
+                <tr>
+                  <td><strong style="color: var(--tuning-primary); text-transform:uppercase;">Preț final</strong></td>
+                  <td style="font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:700; color: var(--tuning-primary);" data-testid="set-pret-final-<%= s.id %>">
+                    <%= s.pretFinal.toFixed(2) %> RON
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,439 @@
+// =============================================================================
+// custom.scss - Tuning Pro Center - Paletă originală teodorilie07/test
+// =============================================================================
+
+// -------- 1. Suprascriere variabile Bootstrap ---------------------------------
+
+// Paletă originală
+$primary:       #1c355e;   // dark blue (h1, h2, borders)
+$secondary:     #86D0F7;   // clr-main - cyan sky
+$success:       #4caf50;
+$warning:       #ffb300;
+$danger:        #e53935;
+$info:          #BAF3F5;   // clr-1
+$light:         #f2fafa;   // background pagina
+$dark:          #1c355e;
+
+$body-bg:       #f2fafa;
+$body-color:    #111111;
+
+// Font families - font original chunky Madimi One
+$font-family-sans-serif: 'Madimi One', 'Segoe UI', system-ui, sans-serif;
+$font-family-base:       $font-family-sans-serif;
+$headings-font-family:   'Madimi One', sans-serif;
+$headings-font-weight:   400;
+$headings-color:         #1c355e;
+
+// Dimensiuni titluri (originale)
+$h1-font-size: 2.2rem;
+$h2-font-size: 1.8rem;
+$h3-font-size: 1.5rem;
+$h4-font-size: 1.2rem;
+
+// Border radius
+$border-radius:       8px;
+$border-radius-sm:    5px;
+$border-radius-lg:    12px;
+
+// Breakpoints
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 800px,
+  lg: 1080px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+// Butoane
+$btn-padding-y:       0.5rem;
+$btn-padding-x:       1.1rem;
+$btn-font-weight:     400;
+$btn-border-radius:   6px;
+$btn-font-family:     'Madimi One', sans-serif;
+
+// Inputuri
+$input-bg:            #FFFFFF;
+$input-color:         #111111;
+$input-border-color:  #cccccc;
+$input-focus-border-color: $secondary;
+$input-focus-bg:      #FFFFFF;
+$input-focus-color:   #111111;
+$input-padding-y:     0.5rem;
+$input-border-radius: 6px;
+
+$form-select-bg:      #FFFFFF;
+$form-select-color:   #111111;
+$form-select-border-color: #cccccc;
+$form-select-border-radius: 6px;
+
+// Card
+$card-bg:             #FFFFFF;
+$card-border-color:   #cccccc;
+$card-color:          #111111;
+$card-border-radius:  8px;
+
+// Range
+$form-range-track-height:       0.6rem;
+$form-range-track-bg:           #BACEF5;
+$form-range-thumb-width:         1.4rem;
+$form-range-thumb-height:        1.4rem;
+$form-range-thumb-bg:            $primary;
+$form-range-thumb-border:        2px solid #FFFFFF;
+
+// Table
+$table-color:         #111111;
+$table-bg:            #FFFFFF;
+$table-border-color:  #cccccc;
+$table-striped-bg:    #f2fafa;
+
+// Modal & Dropdown
+$modal-content-bg:    #FFFFFF;
+$modal-content-color: #111111;
+$modal-content-border-color: #cccccc;
+$dropdown-bg:         #BAF3F5;
+$dropdown-color:      #1c355e;
+$dropdown-link-color: #1c355e;
+$dropdown-link-hover-bg: #86D0F7;
+$dropdown-link-hover-color: #1c355e;
+$dropdown-border-color: #86D0F7;
+$dropdown-border-radius: 5px;
+
+// -------- 2. Import Bootstrap ---------------------------------------
+@import "bootstrap/scss/bootstrap";
+
+// -------- 3. Fonturi & iconițe --------------------------------
+@import url('https://fonts.googleapis.com/css2?family=Madimi+One&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+@import url('https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css');
+
+// -------- 4. Variabile CSS globale (din original) --------------------
+:root {
+  // Culori originale
+  --clr-1: #BAF3F5;
+  --clr-2: #BACEF5;
+  --clr-3: #B9DFF4;
+  --clr-4: #BAF5E3;
+  --clr-5: #BABBF5;
+  --clr-main: #86D0F7;
+  --clr-white: #ffffff;
+  --clr-dark-text: #111111;
+  --clr-dark-blue: #1c355e;
+  --clr-bg-page: #f2fafa;
+  --clr-border-light: #cccccc;
+  --clr-shadow-light: rgba(0,0,0,0.1);
+  --clr-shadow-med: rgba(0,0,0,0.25);
+  --margine-stanga-dreapta: 40px;
+  --gap-grid: 20px;
+  --padding-zone: 20px;
+
+  // Aliasuri pentru componente
+  --tuning-primary:    #1c355e;
+  --tuning-secondary:  #86D0F7;
+  --tuning-bg:         #f2fafa;
+  --tuning-nav:        #BABBF5;
+  --tuning-surface:    #FFFFFF;
+  --tuning-surface-alt: #f2fafa;
+  --tuning-surface-mint: #BAF5E3;
+  --tuning-header-tab: #B9DFF4;
+  --tuning-text:       #111111;
+  --tuning-text-muted: #555555;
+  --tuning-border:     #cccccc;
+  --tuning-border-strong: #86D0F7;
+  --tuning-badge-new:  #86D0F7;
+  --tuning-badge-cheapest: #4caf50;
+  --tuning-timer:      #ff5722;
+  --tuning-shadow:     0 4px 6px rgba(0,0,0,0.1);
+  --tuning-shadow-hover: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+// Tema Peach warm
+[data-tuning-theme="peach"] {
+  --tuning-primary:    #d84315;
+  --tuning-secondary:  #ff8a65;
+  --tuning-bg:         #fff3e0;
+  --tuning-nav:        #ffccbc;
+  --tuning-surface:    #FFFFFF;
+  --tuning-surface-alt: #fff8f3;
+  --tuning-surface-mint: #ffe0b2;
+  --tuning-header-tab: #ffab91;
+  --tuning-text:       #bf360c;
+  --tuning-text-muted: #a1522c;
+  --tuning-border:     #ffcc80;
+  --tuning-border-strong: #ff8a65;
+  --clr-bg-page:       #fff3e0;
+  --clr-dark-blue:     #d84315;
+  --clr-main:          #ff8a65;
+  --clr-1:             #ffe0b2;
+  --clr-3:             #ffccbc;
+}
+
+// Tema Dark cozy
+[data-tuning-theme="dark"] {
+  --tuning-primary:    #90caf9;
+  --tuning-secondary:  #ce93d8;
+  --tuning-bg:         #1e2233;
+  --tuning-nav:        #2c3654;
+  --tuning-surface:    #29314d;
+  --tuning-surface-alt: #212843;
+  --tuning-surface-mint: #2d4a3d;
+  --tuning-header-tab: #37476b;
+  --tuning-text:       #e3f2fd;
+  --tuning-text-muted: #90a4ae;
+  --tuning-border:     #37476b;
+  --tuning-border-strong: #5c6bc0;
+  --clr-bg-page:       #1e2233;
+  --clr-dark-blue:     #90caf9;
+  --clr-dark-text:     #e3f2fd;
+  --clr-main:          #5c6bc0;
+  --clr-1:             #37476b;
+  --clr-3:             #29314d;
+}
+
+// -------- 5. Bindings variabile CSS -> Bootstrap ---------------------
+body {
+  background-color: var(--clr-bg-page) !important;
+  color: var(--tuning-text) !important;
+  font-family: 'Madimi One', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+}
+
+html { scroll-behavior: smooth; }
+
+h1, h2, h3, h4, h5, h6, .brand-title {
+  font-family: 'Madimi One', sans-serif;
+  color: var(--clr-dark-blue) !important;
+}
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.8rem; border-bottom: 2px solid var(--clr-main); margin-bottom: 15px; padding-bottom: 6px; }
+h3 { font-size: 1.5rem; margin-bottom: 10px; }
+h4 { font-size: 1.2rem; color: var(--clr-main) !important; margin-bottom: 5px; }
+
+a { color: var(--clr-dark-blue); }
+a:visited { color: #BABBF5; }
+a:hover { color: var(--clr-main); }
+
+.card {
+  background: var(--tuning-surface) !important;
+  color: var(--tuning-text) !important;
+  border: 1px solid var(--clr-border-light) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px var(--clr-shadow-light);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--tuning-shadow-hover);
+  border-color: var(--clr-main) !important;
+}
+
+.form-control, .form-select {
+  background: #FFFFFF !important;
+  color: #111 !important;
+  border: 1px solid var(--clr-border-light) !important;
+  border-radius: 6px;
+}
+[data-tuning-theme="dark"] .form-control,
+[data-tuning-theme="dark"] .form-select {
+  background: #29314d !important;
+  color: #e3f2fd !important;
+  border-color: #37476b !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--clr-main) !important;
+  box-shadow: 0 0 0 0.2rem rgba(134, 208, 247, 0.25) !important;
+}
+
+// Modal, Dropdown
+.modal-content {
+  background: var(--tuning-surface) !important;
+  color: var(--tuning-text) !important;
+  border-color: var(--clr-border-light) !important;
+}
+
+.dropdown-menu {
+  background: var(--clr-1) !important;
+  border: 2px solid var(--clr-main) !important;
+  border-radius: 5px !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.dropdown-item { color: var(--clr-dark-blue) !important; padding: 10px 15px; }
+.dropdown-item:hover { background: var(--clr-main) !important; color: var(--clr-dark-blue) !important; }
+
+// Butoane
+.btn-primary {
+  background: var(--clr-dark-blue) !important;
+  border-color: var(--clr-dark-blue) !important;
+  color: #FFFFFF !important;
+  border-radius: 6px !important;
+  font-family: 'Madimi One', sans-serif;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  background: var(--clr-main) !important;
+  border-color: var(--clr-main) !important;
+  color: var(--clr-dark-blue) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+.btn-outline-primary {
+  color: var(--clr-dark-blue) !important;
+  border: 2px solid var(--clr-dark-blue) !important;
+  background: transparent;
+  border-radius: 6px !important;
+  font-family: 'Madimi One', sans-serif;
+}
+.btn-outline-primary:hover {
+  background: var(--clr-dark-blue) !important;
+  color: #FFFFFF !important;
+}
+
+// -------- 6. Range --------------
+.form-range::-webkit-slider-thumb {
+  background: var(--clr-dark-blue) !important;
+  border: 2px solid #FFFFFF !important;
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+  box-shadow: 0 2px 6px rgba(28, 53, 94, 0.35);
+}
+.form-range::-moz-range-thumb {
+  background: var(--clr-dark-blue) !important;
+  border: 2px solid #FFFFFF !important;
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+}
+.form-range::-webkit-slider-runnable-track {
+  background: var(--clr-2) !important;
+  height: 0.6rem !important;
+  border-radius: 1rem;
+}
+
+// -------- 7. Header original -------------------
+header#top {
+  padding: 20px var(--margine-stanga-dreapta) 0;
+  background: var(--clr-bg-page);
+}
+header#top h1 {
+  font-family: 'Madimi One', sans-serif;
+  color: var(--clr-dark-blue);
+  font-size: 2.2rem;
+  margin: 0;
+}
+header#top > p {
+  color: var(--clr-dark-text);
+  font-size: 1rem;
+  margin: 5px 0 15px;
+}
+.icon-animat {
+  animation: fa-spin 2s infinite linear;
+  color: var(--clr-main);
+}
+@keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+// -------- 8. Nav principal (stil original cu ::before hover) --------
+#nav-principal {
+  padding: 0 var(--margine-stanga-dreapta);
+}
+#nav-principal .meniu {
+  background: var(--clr-5);
+  display: flex;
+  border-radius: 5px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+#nav-principal .meniu > li {
+  position: relative;
+  padding: 0;
+}
+#nav-principal .meniu > li > a {
+  display: block;
+  padding: 15px 20px;
+  color: var(--clr-dark-blue);
+  text-decoration: none;
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.4s ease, box-shadow 0.4s ease;
+  transition-delay: 0.1s;
+  font-family: 'Madimi One', sans-serif;
+}
+#nav-principal .meniu > li > a::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background-color: var(--clr-main);
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 5px;
+  transition: transform 0.4s ease;
+  transition-delay: 0.1s;
+  z-index: -1;
+}
+#nav-principal .meniu > li:hover > a {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  color: var(--clr-dark-blue);
+}
+#nav-principal .meniu > li:hover > a::before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+// Submeniu
+#nav-principal .submeniu {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background: var(--clr-1);
+  border: 2px solid var(--clr-main);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform-origin: top left;
+  transform: scale(0);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease-in-out;
+  list-style: none;
+  padding: 0;
+  border-radius: 5px;
+}
+#nav-principal .meniu > li:hover .submeniu {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+#nav-principal .submeniu li { padding: 0; }
+#nav-principal .submeniu a {
+  display: block;
+  padding: 10px 15px;
+  color: var(--clr-dark-blue);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+#nav-principal .submeniu a:hover { background: var(--clr-main); }
+
+// Theme switcher
+.theme-switch {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.35rem 0.5rem;
+}
+.theme-switch button {
+  background: transparent;
+  border: 2px solid var(--clr-dark-blue);
+  color: var(--clr-dark-blue);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.theme-switch button.active { background: var(--clr-dark-blue); color: #FFF; }
+.theme-switch button:hover:not(.active) { background: var(--clr-main); color: var(--clr-dark-blue); }

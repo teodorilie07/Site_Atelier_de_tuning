@@ -6,127 +6,18 @@
 <body>
     <%- include('../fragmente/header.ejs') %>
 
-    <main class="grid-layout">
-        <section id="zona1">
-            <h2>Performanță Absolută</h2>
-            <div class="f-pattern-content">
-                <p>Descoperă noile standarde. Aducem inovația sub capota ta, oferind modificări care îți taie respirația. Facem <a href="/despre">tuning profesional</a> și <a href="#zona-video-premium">remapare software</a> pentru performanță extremă.</p>
-                <img src="/resurse/imagini/motor-med.jpg" alt="Motor performanta tuning" class="img-prezentare">
-            </div>
-        </section>
-
-        <section id="zona8">
-            <h2>Panou Informativ</h2>
-
-            <section id="welcome">
-                <hgroup>
-                    <h3>Bine ați venit la Tuning Pro</h3>
-                    <p>Expertiză în performanță auto și piese auto.</p>
-                </hgroup>
-                
-                <p class="intro">Transformăm orice mașină într-o piesă unică prin <b>tuning</b> profesional, <b>remapare</b> sigură și piese pentru orice <b>stage</b> ales. Pentru detalii despre evenimente, vezi <a href="#zona3">calendarul nostru</a>.</p>
-                
-                <blockquote>"Puterea fără control nu înseamnă nimic." - Pirelli</blockquote>
-
+    <main class="grid-layout" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 50px;">
+        <section id="zona1" style="width: 100%; max-width: 800px; padding: 40px; border: 2px solid var(--clr-main);">
+            <h2><%= locals.titlu %></h2>
+            <p style="font-size: 1.2rem; margin: 20px 0;"><%= locals.text %></p>
+            
+            <% if (locals.imagine) { %>
                 <figure>
-                    <a href="https://www.tuningworldbodensee.de/en/" target="_blank">
-                        <img src="/resurse/imagini/motor-mic.jpg" alt="Motor modificat tuning pro">
-                    </a>
-                    <figcaption>Atelierul nostru dotat cu stand de probă (Dyno). Vizitează site-ul partenerilor noștri de la <a href="https://www.tuningworldbodensee.de/en/" target="_blank">Tuning World</a>.</figcaption>
+                    <img src="<%= locals.imagine %>" alt="Imagine eroare" style="max-width: 300px; border-radius: 10px; margin-top: 20px;">
                 </figure>
-            </section>
+            <% } %>
 
-            <section id="promotii">
-                <h3>Promoțiile Lunii</h3>
-                <ul>
-                    <li>Reducere 15% la pachetele Stage 1 realizate de luni până miercuri.</li>
-                    <li>Diagnoză completă gratuită la orice evacuare custom achiziționată.</li>
-                </ul>
-            </section>
-
-            <section id="zona2">
-                <h3>Orar Lucru & Servicii</h3>
-                <div class="tabel-container">
-                    <table>
-                        <caption>Programul de lucru al atelierului</caption>
-                        <thead>
-                            <tr>
-                                <th>Ziua</th>
-                                <th>Interval Orar</th>
-                                <th>Tip Serviciu</th>
-                                <th>Mecanic Șef</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td rowspan="2">Luni - Vineri</td>
-                                <td>08:00 - 12:00</td>
-                                <td>Diagnoză și Software</td>
-                                <td>Andrei</td>
-                            </tr>
-                            <tr>
-                                <td>13:00 - 17:00</td>
-                                <td>Mecanică și Hardware</td>
-                                <td>Mihai</td>
-                            </tr>
-                            <tr>
-                                <td>Sâmbătă</td>
-                                <td>09:00 - 13:00</td>
-                                <td>Dyno & Măsurători</td>
-                                <td>Echipă Tehnică</td>
-                            </tr>
-                            <tr>
-                                <td>Sărbători</td>
-                                <td>12:00 - 14:00</td>
-                                <td>Consultanță</td>
-                                <td>Management</td>
-                            </tr>
-                            <tr>
-                                <td>Duminică</td>
-                                <td colspan="3">Închis - Doar urgențe software pe chat</td> 
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="4">Pentru programări folosiți formularul online.</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </section>
-        </section>
-
-        <section id="zona-video-premium" style="grid-column: 1 / -1; margin-top: 20px;">
-            <h3>Prezentare Premium Tuning Studio</h3>
-            <div class="container-video-custom">
-                <video controls preload="none" poster="/resurse/imagini/video-poster.jpg">
-                    <source src="/resurse/video/prezentare.mp4" type="video/mp4">
-                    <source src="/resurse/video/prezentare.webm" type="video/webm">
-                    <track src="/resurse/video/subtitrare-ro.vtt" kind="subtitles" srclang="ro" label="Română">
-                    <track src="/resurse/video/subtitrare-en.vtt" kind="subtitles" srclang="en" label="English">
-                    Browserul tău nu suportă elementul video HTML5.
-                </video>
-            </div>
-        </section>
-
-        <section id="zona4">
-            <h3>Anunțuri </h3>
-            <p>Aducem pe stoc <i>evacuări din titan</i> pentru BMW M4. Grăbește-te!</p>
-        </section>
-
-        <section id="zona5">
-            <h3>Utilizatori Online</h3>
-            <p>Sunt 45 pasionati activi in comunitate.</p>
-        </section>
-
-        <section id="zona6">
-            <h3>Statistici User </h3>
-            <p>Ai vizualizat 12 proiecte astazi.</p>
-        </section>
-
-        <section id="zona7">
-            <h3>Documentație Tehnică</h3>
-            <embed src="/resurse/ghid.pdf" type="application/pdf" width="100%" height="300">
+            <a href="/" style="display: inline-block; margin-top: 30px; padding: 10px 20px; background-color: var(--clr-dark-blue); color: var(--clr-white); border-radius: 5px; text-decoration: none;">Înapoi la pagina principală</a>
         </section>
     </main>
 

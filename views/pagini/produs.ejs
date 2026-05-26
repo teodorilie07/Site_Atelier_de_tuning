@@ -1,0 +1,122 @@
+<%- include('../partials/header') %>
+
+<% 
+  // Formatare data zi/Luna/an (Zi_saptamana)
+  const luni = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  const zileSapt = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+  const dt = new Date(produs.data_adaugare);
+  const dataFormatata = dt.getDate() + '/' + luni[dt.getMonth()] + '/' + dt.getFullYear() + ' (' + zileSapt[dt.getDay()] + ')';
+  const areImaginiExtra = Array.isArray(produs.imagini_extra) && produs.imagini_extra.length > 0;
+%>
+
+<article class="section-tuning" data-testid="pagina-produs">
+  <div class="container-fluid px-4 px-lg-5">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb" style="font-size:0.85rem;">
+        <li class="breadcrumb-item"><a href="/" style="color: var(--tuning-text-muted);">Acasă</a></li>
+        <li class="breadcrumb-item"><a href="/produse" style="color: var(--tuning-text-muted);">Produse</a></li>
+        <li class="breadcrumb-item"><a href="/produse?categorie=<%= encodeURIComponent(produs.categorie) %>" style="color: var(--tuning-text-muted);"><%= produs.categorie %></a></li>
+        <li class="breadcrumb-item active" style="color: var(--tuning-primary);"><%= produs.nume %></li>
+      </ol>
+    </nav>
+
+    <div class="row g-5">
+      <!-- Imagine -->
+      <div class="col-lg-6">
+        <% if (areImaginiExtra) { %>
+          <div id="prod-detail-carousel" class="carousel slide" data-bs-ride="carousel" data-testid="produs-carousel">
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#prod-detail-carousel" data-bs-slide-to="0" class="active"></button>
+              <% produs.imagini_extra.forEach(function(_, idx) { %>
+                <button type="button" data-bs-target="#prod-detail-carousel" data-bs-slide-to="<%= idx + 1 %>"></button>
+              <% }); %>
+            </div>
+            <div class="carousel-inner" style="border: 1px solid var(--tuning-border);">
+              <div class="carousel-item active">
+                <img src="<%= produs.imagine %>" class="d-block w-100" alt="<%= produs.nume %>" style="aspect-ratio:1;object-fit:cover;">
+              </div>
+              <% produs.imagini_extra.forEach(function(img) { %>
+                <div class="carousel-item">
+                  <img src="<%= img %>" class="d-block w-100" style="aspect-ratio:1;object-fit:cover;">
+                </div>
+              <% }); %>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#prod-detail-carousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#prod-detail-carousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          </div>
+        <% } else { %>
+          <img src="<%= produs.imagine %>" alt="<%= produs.nume %>" class="w-100" style="aspect-ratio:1;object-fit:cover;border:1px solid var(--tuning-border);" data-testid="produs-imagine-principala">
+        <% } %>
+      </div>
+
+      <!----> Detalii -->
+      <div class="col-lg-6">
+        <div class="d-flex gap-2 mb-2">
+          <% if (produs._este_nou) { %><span class="badge-tuning badge-nou" data-testid="produs-badge-nou">NOU</span><% } %>
+          <% if (produs._cheapest) { %><span class="badge-tuning badge-cheapest">CEL MAI IEFTIN</span><% } %>
+          <% if (produs._oferta) { %><span class="badge-tuning badge-oferta">OFERTĂ -<%= produs._oferta.discount %>%</span><% } %>
+        </div>
+        <h1 style="font-family:'Rajdhani',sans-serif; text-transform:uppercase; font-weight:700;" data-testid="produs-nume"><%= produs.nume %></h1>
+        <p style="color: var(--tuning-text-muted); font-size:1.05rem;" data-testid="produs-descriere"><%= produs.descriere %></p>
+
+        <div class="d-flex align-items-center gap-3 my-4">
+          <div class="card-price" style="font-size: 2.5rem;" data-testid="produs-pret">
+            <% if (produs._oferta) { %><span class="old" style="font-size:1.3rem;"><%= parseFloat(produs._pret_vechi).toFixed(2) %> RON</span><% } %>
+            <%= parseFloat(produs._pret_afisat).toFixed(2) %> RON
+          </div>
+          <% if (produs._oferta) { %>
+            <span class="oferta-timer" data-expira="<%= produs._oferta.expira_la %>" style="font-size: 1.3rem;">00:00:00</span>
+          <% } %>
+        </div>
+
+        <table class="tabel-detalii" data-testid="produs-tabel-detalii">
+          <thead>
+            <tr><th>Caracteristică</th><th>Valoare</th></tr>
+          </thead>
+          <tbody>
+            <tr><td data-label="Categorie">Categorie</td><td><i class="bi bi-tag-fill me-1" style="color:var(--tuning-primary);"></i><%= produs.categorie %></td></tr>
+            <tr><td data-label="Material">Material</td><td><%= produs.material %></td></tr>
+            <tr><td data-label="Culoare">Culoare</td><td><%= produs.culoare %></td></tr>
+            <tr><td data-label="Putere câștigată">Putere câștigată</td><td><strong style="color:var(--tuning-secondary);"><%= produs.putere_castigata_hp %> CP</strong></td></tr>
+            <tr><td data-label="Data adăugării">Data adăugării</td><td><time datetime="<%= produs.data_adaugare %>"><%= dataFormatata %></time></td></tr>
+            <tr><td data-label="Compatibilitate">Compatibilitate</td><td><%= (produs.compatibilitate || []).join(', ') %></td></tr>
+            <tr><td data-label="Montaj profesionist">Montaj profesionist</td><td>
+              <% if (produs.necesita_montaj_profesionist) { %>
+                <span class="text-warning"><i class="bi bi-tools"></i> Da (recomandat)</span>
+              <% } else { %>
+                <span class="text-success"><i class="bi bi-check-circle-fill"></i> Nu (DIY)</span>
+              <% } %>
+            </td></tr>
+          </tbody>
+        </table>
+
+        <div class="d-flex gap-2 mt-4 flex-wrap">
+          <button class="btn btn-tuning btn-comparare-add"
+                  data-produs-id="<%= produs.id %>" data-produs-nume="<%= produs.nume %>" data-produs-imagine="<%= produs.imagine %>"
+                  data-testid="produs-btn-comparare">
+            <span><i class="bi bi-columns-gap"></i> Adaugă la comparare</span>
+          </button>
+          <a href="/produse" class="btn btn-tuning-outline"><span><i class="bi bi-arrow-left"></i> Înapoi la catalog</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produse similare (Bonus 16) -->
+    <% if (similare && similare.length) { %>
+      <div class="mt-5 pt-4" style="border-top: 1px solid var(--tuning-border);">
+        <h2><span class="stripe"></span>Produse similare</h2>
+        <div class="row g-4" data-testid="grid-similare">
+          <% similare.forEach(function(p) { %>
+            <div class="col-md-6 col-lg-4 col-xl-3"><%- include('../partials/card-produs', { produs: p }) %></div>
+          <% }); %>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</article>
+
+<%- include('../partials/footer') %>

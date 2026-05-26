@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="author" content="Ilie Petre-Teodor">
+<meta name="keywords" content="tuning, remapare, piese auto, stage, modificari estetice, atelier auto">
+<meta name="description" content="Tuning Pro Center oferă servicii de remapare software, modificări estetice și piese auto de performanță.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="msapplication-TileColor" content="#86D0F7">
+<title><%= typeof title !== 'undefined' ? title : 'Tuning Pro - Performanță și Stil' %></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/resurse/css/custom.css">
+<link rel="stylesheet" href="/resurse/css/componente.css">
+<script>
+  // Aplicare tema imediata (evita flicker) - default light pastel
+  (function() {
+    const t = localStorage.getItem('tuning-theme') || 'light';
+    document.documentElement.setAttribute('data-tuning-theme', t);
+  })();
+</script>
+</head>
+<body>
+
+<header id="top">
+  <h1><a href="/" style="color:inherit; text-decoration:none;" data-testid="brand-link">Tuning Pro Center</a></h1>
+  <p>
+    <i class="fa-solid fa-car"></i>
+    Pasiune auto dusă la extrem
+    <i class="fa-solid fa-gear fa-spin icon-animat"></i>
+  </p>
+
+  <%- include('meniu') %>
+</header>

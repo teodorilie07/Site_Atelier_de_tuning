@@ -1,0 +1,605 @@
+Tuning Pro Center - explicatii pentru cerintele din prompt
+=========================================================
+
+Notă generală:
+- Proiectul folosește Express + EJS + PostgreSQL + Bootstrap + SCSS + JavaScript vanilla.
+- Am grupat cerintele din prompt in sectiuni clare: taskuri, bonusuri, intrebari de explicare pentru evaluare.
+- Pentru fiecare cerinta am pus: status, fisierul exact, blocul de cod relevant si explicatia codului.
+
+------------------------------------------------------------
+TASK 1 - Corectarea linkurilor din meniu
+------------------------------------------------------------
+Status: implementat
+Fisier: views/partials/meniu.ejs
+Bloc relevant:
+- <li>
+    <a href="/produse" ...>Galerii</a>
+    <ul class="submeniu">
+      <li><a href="/produse">Toate produsele</a></li>
+      <% categorii.forEach(function(c) { %>
+        <li><a href="/produse?categorie=<%= encodeURIComponent(c) %>">...</a></li>
+      <% }); %>
+    </ul>
+  </li>
+
+Ce inseamna:
+- Linkul catre pagina de produse este corect setat la /produse.
+- Submeniul este generat din lista de categorii, nu scris manual.
+- Fiecare categorie duce la /produse?categorie=... si afiseaza doar produsele din acea categorie.
+
+------------------------------------------------------------
+TASK 2 - Afisare + sortare + filtrare + calculare
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- views/pagini/produse.ejs
+- index.js
+- resurse/js/produse.js
+
+Bloc 1 - formularul de filtre in views/pagini/produse.ejs
+- Am un formular cu id="form-filtre" si inputuri pentru nume, pret_min, pret_max, datalist material, radio montaj, checkbox categorii, textarea compatibilitate, select culoare, select multiplu materiale, sortare.
+- Asta inseamna ca toate filtrele sunt colectate dintr-un singur formular.
+
+Bloc 2 - filtrarea pe server in index.js
+- Functia aplicaFiltre(produse, filtre) primeste lista de produse si obiectul filtre.
+- Pentru fiecare filtru se executa o conditie:
+  - nume: se compara cu wildcard * si se foloseste normalize() pentru a elimina diacritice.
+  - pret_min / pret_max: se filtreaza dupa pret.
+  - material_datalist: se compara materialul.
+  - montaj: se filtreaza dupa booleanul necesita_montaj_profesionist.
+  - categorii: se foloseste un Set pentru a verifica multiple categorii.
+  - compat_text: se cauta text in compatibilitate.
+  - culoare: se compara culoarea exacta.
+  - materiale_multi: se foloseste un Set cu multiple valori selectate.
+
+Bloc 3 - sortarea in index.js
+- Functia aplicaSortare(produse, cheie, ordine) creeaza o copie a listei si aplica sort().
+- Logica este:
+  - dir = ordine === 'desc' ? -1 : 1
+  - daca va < vb => return -1 * dir
+  - daca va > vb => return 1 * dir
+  - altfel => return 0
+- Asta inseamna ca daca vrem crescator, returnam -1/1 normal, iar daca vrem descrescator, inversam semnul.
+
+Bloc 4 - fetch-ul client in resurse/js/produse.js
+- Se creeaza un obiect FormData din formular.
+- Se transforma in URLSearchParams.
+- Se face fetch('/catalog-json?' + params.toString()).
+- Raspunsul JSON returneaza produse si total.
+- Functia renderProduse() reafișeaza cardurile si afiseaza mesajul daca nu exista produse.
+
+Bloc 5 - calculare in resurse/js/produse.js
+- Butonul btn-calculeaza asculta click.
+- Se iau toate cardurile vizibile.
+- Se calculeaza suma preturilor, numarul produselor si total CP.
+- Rezultatul apare intr-un div fix de 2 secunde.
+
+------------------------------------------------------------
+TASK 3 - Stilizare inputuri cu Bootstrap si customizare SASS
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- resurse/scss/custom.scss
+- resurse/css/custom.css (generat din SCSS)
+
+Bloc relevant in custom.scss:
+- $primary, $secondary, $input-bg, $input-color, $input-border-color, $input-padding-y, $input-border-radius
+- $form-range-track-height, $form-range-track-bg, $form-range-thumb-width, $form-range-thumb-height, $form-range-thumb-bg
+- @import "bootstrap/scss/bootstrap";
+
+Ce inseamna:
+- Am suprascris variabilele Bootstrap pentru a obtine tema site-ului.
+- Inputurile, selecturile si butoanele sunt stilizate cu Bootstrap, dar personalizate prin variabile SCSS.
+- Range-ul are thumb mai mare si culoarea personalizata.
+
+------------------------------------------------------------
+TASK 4 - Textarea cu floating label si validare
+------------------------------------------------------------
+Status: implementat partial / conform proiectului actual
+Fisier: views/pagini/produse.ejs
+Bloc relevant:
+- <div class="form-floating">
+    <textarea name="compat_text" ... class="form-control <%= filtre.compat_text && filtre.compat_text.length < 3 ? 'is-invalid' : '' %>" ...></textarea>
+    <label for="ta-compat">Ex: BMW E46 sau Golf 7</label>
+    <div class="invalid-feedback">Minim 3 caractere.</div>
+  </div>
+
+Ce inseamna:
+- Textarea folosește floating label Bootstrap.
+- Daca valoarea are mai putin de 3 caractere, este marcat cu clasa is-invalid.
+- In proiectul actual validarea este facuta prin logica EJS/Bootstrap, nu printr-un script JS separat.
+- Cand se face filtrarea, valoarea este tratata in backend si in UI se vede starea invalid.
+
+------------------------------------------------------------
+TASK 5 - Radio buttons si checkbox-uri ca toggle buttons
+------------------------------------------------------------
+Status: implementat
+Fisier: views/pagini/produse.ejs
+Bloc relevant:
+- Pentru radio: input type="radio" class="btn-check" name="montaj" ...
+  <label class="form-check-label" for="mnt-da">Da</label>
+- Pentru checkbox-uri: input type="checkbox" class="btn-check" name="categorii" ...
+  <label class="btn btn-sm btn-outline-danger" for="...">...</label>
+
+Ce inseamna:
+- btn-check este mecanismul Bootstrap care face ca inputurile checkbox/radio sa arate ca butoane toggle.
+- Pentru radio, toate optiunile au acelasi name, asa ca doar una poate fi selectata.
+- Pentru checkbox, fiecare optiune este independenta.
+
+------------------------------------------------------------
+TASK 6 - Asezarea inputurilor in grid Bootstrap
+------------------------------------------------------------
+Status: implementat
+Fisier: views/pagini/produse.ejs
+Bloc relevant:
+- <div class="row g-4">
+    <aside class="col-lg-4 col-xl-3">...</aside>
+    <div class="col-lg-8 col-xl-9">...</div>
+  </div>
+
+Ce inseamna:
+- Filtrul este in stanga, rezultatele in dreapta.
+- Clasa row + col-lg-4/col-xl-3 etc creeaza un layout responsive.
+- Pe ecrane mici, layout-ul se adapteaza automat.
+
+------------------------------------------------------------
+TASK 7 - Schimbarea temei light/dark cu localStorage
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- views/partials/header.ejs
+- views/partials/meniu.ejs
+- resurse/js/theme.js
+- resurse/scss/custom.scss
+
+Bloc 1 - aplicarea temei la incarcarea paginii in header.ejs
+- <script>
+    (function() {
+      const t = localStorage.getItem('tuning-theme') || 'light';
+      document.documentElement.setAttribute('data-tuning-theme', t);
+    })();
+  </script>
+
+Bloc 2 - salvarea temei in resurse/js/theme.js
+- const KEY = 'tuning-theme';
+- html.setAttribute('data-tuning-theme', theme);
+- localStorage.setItem(KEY, theme);
+- const current = localStorage.getItem(KEY) || 'light';
+
+Ce inseamna:
+- Tema este salvata in localStorage.
+- Cand reimprospatezi pagina sau te duci pe alta pagina, valoarea este citita din localStorage.
+- Astfel tema ramane aceeasi pe toate paginile din site.
+
+------------------------------------------------------------
+TASK 8 - Slider range cu thumb personalizat si culoare customizata
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- resurse/scss/custom.scss
+- views/pagini/produse.ejs
+
+Bloc relevant in custom.scss:
+- $form-range-track-height
+- $form-range-track-bg
+- $form-range-thumb-width
+- $form-range-thumb-height
+- $form-range-thumb-bg
+- .form-range::-webkit-slider-thumb
+- .form-range::-moz-range-thumb
+- .form-range::-webkit-slider-runnable-track
+
+Ce inseamna:
+- Thumb-ul sliderului este mai mare si are o culoare personalizata.
+- Track-ul sliderului are o culoare diferita.
+- In pagina de produse, inputurile de tip range au valorile actuale afisate alaturi.
+
+------------------------------------------------------------
+TASK 9 - Light/dark theme cu variabile CSS
+------------------------------------------------------------
+Status: implementat
+Fisier: resurse/scss/custom.scss
+Bloc:
+- :root { ... --tuning-primary ... }
+- [data-tuning-theme="peach"] { ... }
+- [data-tuning-theme="dark"] { ... }
+
+Ce inseamna:
+- Tema este implementata prin variabile CSS care se schimba in functie de atributul data-tuning-theme de pe html.
+- Folosind aceste variabile, tot site-ul isi schimba culorile.
+
+------------------------------------------------------------
+BONUS 1 - Atribute si label pe baza datelor din baza de date
+------------------------------------------------------------
+Status: implementat partial / in mare parte
+Fisier: views/pagini/produse.ejs
+Bloc relevant:
+- min="<%= Math.floor(pretMinReal) %>" max="<%= Math.ceil(pretMaxReal) %>"
+- <datalist id="lst-mat"> ... <% materialeDistincte.forEach(...) %> ...</datalist>
+- <option value="<%= c %>"> pentru culori si categorii
+
+Ce inseamna:
+- Valorile pentru range, datalist si selecturi sunt preluate din datele reale din baza de date.
+- Nu sunt generate manual, ci sunt calculate din produse.
+
+------------------------------------------------------------
+BONUS 2 - 3 teme
+------------------------------------------------------------
+Status: implementat
+Fisier: views/partials/meniu.ejs
+Bloc relevant:
+- <div class="theme-switch">
+    <button data-theme="light">...</button>
+    <button data-theme="peach">...</button>
+    <button data-theme="dark">...</button>
+  </div>
+
+Ce inseamna:
+- Exista trei teme: light, peach si dark.
+- Dupa click, tema se aplica si se salveaza in localStorage.
+
+------------------------------------------------------------
+BONUS 3 - Mesaj daca nu exista produse
+------------------------------------------------------------
+Status: implementat
+Fisier: resurse/js/produse.js
+Bloc relevant:
+- if (!list || !list.length) {
+    grid.innerHTML = `<div class="alert alert-info ...">
+      <h4>Nu există produse care să corespundă filtrelor.</h4>
+    </div>`;
+  }
+
+Ce inseamna:
+- Daca filtrul nu returneaza niciun produs, in locul gridului apare un mesaj clar.
+
+------------------------------------------------------------
+BONUS 4 - Onchange pentru filtre (in loc de click pe buton)
+------------------------------------------------------------
+Status: implementat
+Fisier: resurse/js/produse.js
+Bloc relevant:
+- form.querySelectorAll('[data-onchange-filter]').forEach(el => {
+    el.addEventListener('change', scheduleFetch);
+    if (el.type === 'text' || el.tagName === 'TEXTAREA') el.addEventListener('input', scheduleFetch);
+    if (el.type === 'range') el.addEventListener('input', scheduleFetch);
+  });
+
+Ce inseamna:
+- Filtrarea se declanseaza la schimbarea valorii inputului, fara a mai apasa butonul de filtru.
+
+------------------------------------------------------------
+BONUS 5 - Paginare
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- index.js
+- views/pagini/produse.ejs
+
+Bloc relevant in index.js:
+- const K = 8;
+- const pagina = parseInt(req.query.pagina || '1', 10);
+- const total = filtrate.length;
+- const totalPagini = Math.max(1, Math.ceil(total / K));
+- const paginate = filtrate.slice((pagina - 1) * K, pagina * K);
+
+Bloc relevant in produse.ejs:
+- <nav class="mt-5">
+    <ul class="pagination justify-content-center"> ...</ul>
+  </nav>
+
+Ce inseamna:
+- Produsele sunt impartite pe pagini.
+- Se genereaza linkuri numerotate pentru fiecare pagina.
+- Cand dai click pe o pagina, se afiseaza alt set de produse.
+
+------------------------------------------------------------
+BONUS 6 - 3 butoane per produs (pastreaza / ascunde / sterge)
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- views/partials/card-produs.ejs
+- resurse/js/produs-sesiune.js
+
+Bloc relevant in card-produs.ejs:
+- <button class="btn btn-sm btn-outline-secondary btn-sesiune-pastreaza" ...>
+- <button class="btn btn-sm btn-outline-warning btn-sesiune-ascunde" ...>
+- <button class="btn btn-sm btn-outline-danger btn-sesiune-sterge" ...>
+
+Bloc relevant in produs-sesiune.js:
+- sessionStorage este folosit pentru a salva id-urile produselor in 3 seturi distincte.
+- Dupa click, se aplica stilul pe carduri.
+
+Ce inseamna:
+- Produsul poate fi pastrat, ascuns sau sters din sesiune.
+- Starea se pastreaza pe tabul curent.
+
+------------------------------------------------------------
+BONUS 7 - Normalizare diacritice pentru filtrare
+------------------------------------------------------------
+Status: implementat
+Fisier: index.js
+Bloc relevant:
+- function normalize(s) {
+    return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  }
+
+Ce inseamna:
+- Textul este comparat fara diacritice.
+- Daca utilizatorul scrie "briose" sau "brioșe", filtrarea poate gasi ambele forme.
+
+------------------------------------------------------------
+BONUS 8 - Sortare dupa 2 chei / seturi de valori
+------------------------------------------------------------
+Status: implementat partial
+Fisier: index.js
+Bloc relevant:
+- const cheiFolosite = Array.isArray(cheie) ? cheie : [cheie];
+- copy.sort((a, b) => {
+    for (const k of cheiFolosite) { ... }
+  });
+
+Ce inseamna:
+- Sortarea poate folosi mai multe chei.
+- In proiectul actual, sortarea default este nume + descriere_lungime.
+
+------------------------------------------------------------
+BONUS 9 - Imagini multiple pentru produs
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- db/init.sql
+- db/seed.sql
+- views/partials/card-produs.ejs
+- views/pagini/produs.ejs
+
+Bloc relevant:
+- In DB, campul imagini_extra TEXT[] stocheaza mai multe imagini.
+- In EJS se afiseaza un carousel Bootstrap cu imaginea principala si imaginile extra.
+
+Ce inseamna:
+- Fiecare produs poate avea mai multe imagini.
+- Pe pagina produsului se afiseaza un carousel Bootstrap.
+
+------------------------------------------------------------
+BONUS 10A / 10B - Filtrare/sortare la server prin fetch
+------------------------------------------------------------
+Status: implementat
+Fisier: index.js
+Bloc relevant:
+- route /catalog-json
+- se preiau filtrele din query string
+- se aplică aplicaFiltre + aplicaSortare
+- se returneaza JSON cu produse si total
+
+Ce inseamna:
+- Filtrarea nu se face doar in DOM, ci pe server, iar JavaScript primeste rezultatul prin fetch.
+
+------------------------------------------------------------
+BONUS 11 - Modal pentru produs
+------------------------------------------------------------
+Status: nu este implementat in varianta actuala
+
+------------------------------------------------------------
+BONUS 12 - Oferte
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- index.js
+- resurse/js/oferte.js
+- views/partials/card-produs.ejs
+- views/pagini/produs.ejs
+
+Bloc relevant in index.js:
+- citesteOferte(), scrieOferte(), genereazaOferte(), cleanupOferte()
+- setInterval(genereazaOferte, T_GENERARE_MS)
+
+Bloc relevant in oferte.js:
+- timer countdown HH:MM:SS
+- ultimile 10 secunde sunt marcate cu clasa critical
+
+Ce inseamna:
+- Se genereaza oferte si se afiseaza un countdown pe produse.
+
+------------------------------------------------------------
+BONUS 13 - Cleanup backup vechi
+------------------------------------------------------------
+Status: implementat
+Fisier: index.js
+Bloc relevant:
+- cleanupBackup()
+- setInterval(cleanupBackup, 10 * 60 * 1000)
+
+Ce inseamna:
+- In folderul backup se sterg fisierele vechi de 10 minute.
+
+------------------------------------------------------------
+BONUS 14 - Cel mai ieftin produs din fiecare categorie
+------------------------------------------------------------
+Status: implementat
+Fisier: index.js
+Bloc relevant:
+- calcCeiMaiIeftini() foloseste query SQL DISTINCT ON (categorie)
+- p._cheapest = cheapestSet.has(p.id)
+
+Ce inseamna:
+- Se marcheaza produsul cel mai ieftin din fiecare categorie cu badge-ul "CEL MAI IEFTIN".
+
+------------------------------------------------------------
+BONUS 15 - Numar total de produse afisate
+------------------------------------------------------------
+Status: implementat
+Fisier: views/pagini/produse.ejs
+Bloc relevant:
+- <strong data-testid="contor-produse"><%= total %></strong> produse.
+- In resurse/js/produse.js, contorul este actualizat cu data.total.
+
+Ce inseamna:
+- Numarul produselor afisate se schimba in functie de filtre.
+
+------------------------------------------------------------
+BONUS 16 - Produse similare
+------------------------------------------------------------
+Status: implementat
+Fisier: index.js
+Bloc relevant:
+- query pentru produse similare in route /produs/:id
+- SELECT * FROM produse WHERE categorie = $1 AND id <> $2 ORDER BY ABS(pret - $3) ASC LIMIT 4
+
+Ce inseamna:
+- Pe pagina produsului apare o sectiune cu produse similare.
+
+------------------------------------------------------------
+BONUS 17 - Seturi de produse
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- db/init.sql
+- db/seed.sql
+- index.js
+- views/pagini/seturi.ejs
+
+Ce inseamna:
+- Exista tabelul seturi si tabelul asociere_set.
+- Pagina /seturi afiseaza seturile, cu pret final calculat prin reducere.
+
+------------------------------------------------------------
+BONUS 18 - Produse noi
+------------------------------------------------------------
+Status: implementat
+Fisier: index.js
+Bloc relevant:
+- const T_NOU_ZILE = 30;
+- marcheazaNou(p) compara data_adaugare cu momentul actual.
+- La homepage, produsele noi sunt afisate in ordine invers cronologica.
+
+Ce inseamna:
+- Produsele adaugate recent sunt marcate cu badge-ul "NOU".
+
+------------------------------------------------------------
+BONUS 19 - Orar vizibil pe orice pagina
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- views/partials/orar.ejs
+- views/partials/footer.ejs / partiale folosite in site
+
+Ce inseamna:
+- Orarul este afisat intr-un fragment EJS care apare in pagina site-ului.
+- Ziua curenta este evidentiaza, iar statusul open/closed este calculat.
+
+------------------------------------------------------------
+BONUS 20 - Comparare produse
+------------------------------------------------------------
+Status: implementat
+Fisiere:
+- resurse/js/comparare.js
+- views/partials/footer.ejs
+- index.js
+- views/pagini/comparare.ejs
+
+Ce inseamna:
+- Se pot selecta doua produse si se face comparatia intr-o pagina separata.
+- Datele sunt salvate in localStorage pentru a persista pe pagini.
+
+------------------------------------------------------------
+INTREBAREA 1 - Cum se face filtrarea?
+------------------------------------------------------------
+Raspuns:
+- Filtrarea se face in index.js, in functia aplicaFiltre(produse, filtre).
+- Pentru fiecare camp de filtru se verifica o conditie si se pastreaza doar produsele care trec.
+- In client, formularul trimite datele catre /catalog-json prin fetch si JS actualizeaza rezultatele.
+
+------------------------------------------------------------
+INTREBAREA 2 - Cum se face sortarea?
+------------------------------------------------------------
+Raspuns:
+- Sortarea se face in index.js, in functia aplicaSortare(produse, cheie, ordine).
+- Se creeaza o copie a listei, apoi se aplica sort() cu o functie callback.
+- In callback se compara valorile a doua produse si se returneaza -1, 0 sau 1.
+
+------------------------------------------------------------
+INTREBAREA 3 - Ce returneaza callback-ul din sort() daca primul argument este mai mic decat al doilea?
+------------------------------------------------------------
+Raspuns:
+- Returneaza un numar negativ, de exemplu -1.
+- In codul proiectului se face astfel:
+  if (va < vb) return -1 * dir;
+- Asta spune ca primul element trebuie pus inaintea celui de-al doilea.
+
+------------------------------------------------------------
+INTREBAREA 4 - De ce avem ca argument al functiei de sortare variabila semn (1 sau -1)?
+------------------------------------------------------------
+Raspuns:
+- Variabila dir este semnul directiei sortarii.
+- Daca sortam crescator, dir = 1.
+- Daca sortam descrescator, dir = -1.
+- Astfel se inverseaza ordinea rezultatelor fara a schimba restul logicii.
+
+------------------------------------------------------------
+INTREBAREA 5 - Cum se face tema si cum persista pe mai multe pagini?
+------------------------------------------------------------
+Raspuns:
+- In header.ejs se citeste localStorage la incarcarea paginii.
+- In theme.js se seteaza atributul data-tuning-theme pe html si se salveaza valoarea in localStorage.
+- Deoarece localStorage este global pentru site-ul respectiv, tema ramane si dupa refresh sau dupa navigare pe alta pagina.
+
+------------------------------------------------------------
+INTREBAREA 6 - Cum se verifica textarea-ul?
+------------------------------------------------------------
+Raspuns:
+- Textarea are clasa is-invalid daca valoarea are mai putin de 3 caractere.
+- Bootstrap arata feedback-ul de invalid.
+- In implementarea actuala, validarea este facuta prin conditia din EJS si prin clasa Bootstrap.
+
+------------------------------------------------------------
+INTREBAREA 7 - Cum poti selecta un singur buton din grupul de radio buttons?
+------------------------------------------------------------
+Raspuns:
+- Toate inputurile radio au acelasi atribut name.
+- Browserul stie ca doar un singur radio poate fi selectat din acel grup.
+- In proiect avem name="montaj" si name="sort_ordine".
+
+------------------------------------------------------------
+INTREBAREA 8 - Cum se face filtrarea dupa selectul multiplu?
+------------------------------------------------------------
+Raspuns:
+- In views/pagini/produse.ejs, selectul are atributul multiple.
+- In index.js, valorile selectate sunt citite ca array si transformate intr-un Set.
+- Apoi se verifica daca materialul produsului appartine setului.
+
+------------------------------------------------------------
+INTREBAREA 9 - Cum se face meniul dinamic?
+------------------------------------------------------------
+Raspuns:
+- In middleware-ul din index.js se seteaza res.locals.categorii = CATEGORII_ENUM;
+- In views/partials/meniu.ejs se parcurge lista categorii cu forEach.
+- Astfel meniul este generat din cod, nu scris manual.
+
+------------------------------------------------------------
+INTREBAREA 10 - Cum se transforma data din engleza in romana?
+------------------------------------------------------------
+Raspuns:
+- In views/pagini/produs.ejs se definesc doua array-uri:
+  - luni = ['Ianuarie', 'Februarie', ...]
+  - zileSapt = ['Duminică', 'Luni', ...]
+- Se creeaza obiectul Date si apoi se iau: getDate(), getMonth(), getFullYear(), getDay().
+- Rezultatul este formatat ca: zi/Luna/an (ziua saptamanii).
+
+------------------------------------------------------------
+INTREBAREA 11 - Cum functioneaza filtrarea si sortarea in pagina de produse?
+------------------------------------------------------------
+Raspuns:
+- Formularul trimite inputurile, backend le proceseaza, iar rezultatul e afisat in pagină.
+- In plus, JavaScript adauga un comportament modern prin fetch si render la fiecare schimbare de filtru.
+- Astfel filtrarea este rapida si se vede imediat.
+
+------------------------------------------------------------
+CONCLUZIE
+------------------------------------------------------------
+- In proiectul actual, cerintele principale din etapa 6 sunt implementate sau partial implementate in urmatoarele zone:
+  - filtrare/sortare/calculare: index.js + resurse/js/produse.js + views/pagini/produse.ejs
+  - Bootstrap/SASS: resurse/scss/custom.scss
+  - tema: views/partials/header.ejs + views/partials/meniu.ejs + resurse/js/theme.js
+  - baza de date: db/init.sql + db/seed.sql + index.js
+  - bonusuri: card-produs, produs-sesiune, oferte, comparare, seturi etc.

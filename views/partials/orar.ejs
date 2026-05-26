@@ -1,0 +1,29 @@
+<%
+  const ziIndex = (new Date().getDay() + 6) % 7;
+  const acumMin = new Date().getHours() * 60 + new Date().getMinutes();
+  const ziCurenta = orarAtelier[ziIndex];
+  let status = 'inchis';
+  if (ziCurenta && ziCurenta.deschidere) {
+    const [oD, mD] = ziCurenta.deschidere.split(':').map(Number);
+    const [oI, mI] = ziCurenta.inchidere.split(':').map(Number);
+    const minD = oD * 60 + mD;
+    const minI = oI * 60 + mI;
+    if (acumMin >= minD && acumMin < minI) status = 'deschis';
+  }
+%>
+<div class="orar-widget" id="orar-widget" data-testid="orar-widget">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0">
+      <i class="bi bi-clock-history"></i> Orar Lucru & Servicii
+    </h5>
+    <span class="<%= status === 'deschis' ? 'status-open' : 'status-closed' %>" data-testid="orar-status">
+      <%= status === 'deschis' ? '● DESCHIS' : '● ÎNCHIS' %>
+    </span>
+  </div>
+  <% orarAtelier.forEach(function(z, i) { %>
+    <div class="zi <%= i === ziIndex ? 'today' : '' %>" data-testid="orar-zi-<%= i %>">
+      <span><%= z.zi %></span>
+      <span><%= z.deschidere ? (z.deschidere + ' – ' + z.inchidere) : 'Închis' %></span>
+    </div>
+  <% }); %>
+</div>

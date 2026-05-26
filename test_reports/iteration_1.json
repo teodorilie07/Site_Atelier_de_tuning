@@ -1,0 +1,43 @@
+{
+  "summary": "Frontend testing pentru aplicatia Node.js SSR (Garaj Tuning). Testat homepage, /produse cu filtre, /produs/:id, /seturi, /comparare, 404, sistem sesiune, comparare tray, orar widget si theme switch. Aplicatia functioneaza corect in general, dar exista un BUG CRITIC de rutare pentru endpointul /api/produse (502 la ingress) care rupe filtrarea client-side (onchange fetch). Filtrarea SSR + celelalte flow-uri functioneaza corect.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "/api/produse", "issue": "Returneaza 502 Bad Gateway prin URL-ul preview (kubernetes ingress redirecteaza /api/* la port 8001 unde nu ruleaza nimic). Pe localhost:3000 endpointul functioneaza corect (returneaza JSON valid). Consecinta: JS-ul din /resurse/js/produse.js face fetch('/api/produse?...') on-change pe filtre iar in browser primeste 502 -> SyntaxError: Unexpected token '<' -- filtrarea live NU functioneaza pentru utilizatori. Filtrarea prin submitul formularului (Filtreaza button, SSR) merge perfect.", "priority": "CRITICAL"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Card produs seed", "issue": "Doua URL-uri Unsplash returneaza HTTP 404 (photo-1615394090234-1c7c5f3ad3b7 si photo-1611288891457-1541fc44c2f5). Sunt folosite in seed.sql pentru produsele: 'Chip Tuning Stage 1 ECU' (id=10), 'Distantiere Roti Hubcentric 20mm' (id=15), 'Modul Coding OBD BimmerCode' (id=18). Rezultat: alt-text vizibil ca placeholder alb-negru.", "selector": "img[src*='1615394090234'], img[src*='1611288891457']", "priority": "MEDIUM"},
+      {"component": "Homepage hero H1", "issue": "textContent-ul concateneaza 'Piese TUNINGCare ridica CAII putere.' - se poate sa lipseasca spatiu/br intre 'TUNING' si 'Care'. Vizual arata OK datorita line-break-ului CSS, dar cand este citit de screen reader / textContent este alipit.", "selector": "h1", "priority": "LOW"}
+    ],
+    "integration_issues": [
+      {"flow": "Filtrare live catalog (onchange fetch)", "issue": "Fetch la /api/produse esueaza cu 502 in productia preview. Trebuie schimbata calea endpointului pentru a evita conflictul cu regula de ingress /api/* -> 8001. Optiuni: /json/produse, /produse.json, sau alt prefix non-/api.", "affected_selectors": ["[data-testid='filter-nume']", "[data-testid='filter-pret-min']", "[data-testid='filter-pret-max']"]},
+      {"flow": "Timer oferte", "issue": "Nu s-au observat oferte active la momentul testarii (durata 90s, cleanup+regenerare pe interval). Nu am putut valida decrementarea timerului HH:MM:SS in browser. Codul de render exista in card-produs.ejs si oferte.js pare corect. Poate necesita crestere DURATA_OFERTA sau garanteaza min N oferte active in orice moment.", "affected_selectors": [".oferta-timer", "[data-testid^='timer-oferta-']", "[data-testid^='badge-oferta-']"]},
+      {"flow": "Background carousel homepage", "issue": "Nu s-a putut confirma schimbarea imaginilor de fundal la ~5s (selectorul body/hero nu a raportat schimbare in 6s). Poate fi doar chestiune de selector, dar merita verificat de main agent.", "affected_selectors": ["body", ".hero"]}
+    ],
+    "design_issues": [
+      {"screen": "Font", "issues": ["User a cerut fontul Rajdhani; body foloseste 'Exo 2'. H1/titlurile folosesc alt font (posibil Rajdhani). Verifica index.ejs pentru consistenta fonturilor."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "CRITICAL: Redenumeste sau reruteaza endpointul /api/produse (ex: /produse.json sau /catalog-api/produse) astfel incat sa nu fie interceptat de regula ingress /api/* -> 8001. Actualizeaza referinta din /app/resurse/js/produse.js (fetch URL).",
+    "MEDIUM: Inlocuieste cele 2 URL-uri Unsplash 404 in /app/db/seed.sql (photo-1615394090234-1c7c5f3ad3b7 pentru id=15 si photo-1611288891457-1541fc44c2f5 pentru id=10 si id=18). Ruleaza seed din nou.",
+    "LOW: Adauga spatiu / whitespace intre cuvintele hero H1 pentru accesibilitate.",
+    "LOW: Verifica cifrele/carousel-ul de background si fontul Rajdhani (daca era intentionat)."
+  ],
+  "critical_code_review_comments": [
+    "In /app/resurse/js/produse.js linia 25: fetch('/api/produse?...') foloseste path relativ /api/ care intra in conflict cu regula de ingress standard din platforma Emergent (/api/* -> port 8001). Solutie: schimba prefixul la ceva ne-conflictual (/produse-api, /json/produse).",
+    "In /app/db/seed.sql: 2 URL-uri Unsplash returneaza 404 - folosite in 3 randuri (id=10, 15, 18). Recomand adaugarea unui health-check pe imagini in build sau folosirea de picsum.photos/placeholder.",
+    "In /app/index.js linia 103: DURATA_OFERTA = 90s. Oferte pot expira intre teste. Recomand extindere sau garantie de N oferte active permanent."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A - not tested", "frontend": "~85%"},
+  "test_credentials": "N/A - no auth in app",
+  "seed_data_creation": "N/A",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Endpoint /api/produse este in conflict cu ingress-ul kubernetes care ruteaza /api/* la port 8001. Trebuie folosit path non-/api pentru fetch client. Pe localhost:3000 endpointul functioneaza. Restul aplicatiei functioneaza corect via preview URL: homepage, /produse (SSR filter), /produs/:id, /seturi, /comparare, /ruta-inexistenta (404), theme switch, session buttons pastreaza/ascunde/sterge, comparison tray. Orar widget marcheaza corect ziua curenta (Marti) cu rosu si status DESCHIS/INCHIS. Fontul folosit este 'Exo 2' pentru body.",
+  "rca_of_the_issue": "Kubernetes ingress in mediul preview Emergent are o regula: cererile catre <domain>/api/* sunt redirectionate la serviciul intern de pe portul 8001 (unde de obicei ruleaza un backend FastAPI). Aplicatia Node.js curenta ruleaza pe portul 3000 si expune /api/produse ca endpoint intern JSON. Cand JS-ul din browser face fetch('/api/produse'), cererea nu ajunge la Node.js pe 3000 ci este redirectionata catre 8001 -> 502 Bad Gateway. Reproducere: `curl -sI https://tuning-catalog-1.preview.emergentagent.com/api/produse` -> 502. `curl http://localhost:3000/api/produse` -> 200 JSON valid. Mitigare: redenumire endpoint la /produse.json sau /json/produse in index.js si in resurse/js/produse.js linia 25."
+}

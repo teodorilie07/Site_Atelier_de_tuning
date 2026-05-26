@@ -1,0 +1,114 @@
+[
+  {
+    "id_produs": 6,
+    "pret_vechi": 8900,
+    "pret_nou": 7921,
+    "discount": 11,
+    "creata_la": 1783612931422,
+    "expira_la": 1783613171422
+  },
+  {
+    "id_produs": 15,
+    "pret_vechi": 640,
+    "pret_nou": 448,
+    "discount": 30,
+    "creata_la": 1783613051470,
+    "expira_la": 1783613291470
+  },
+  {
+    "id_produs": 20,
+    "pret_vechi": 420,
+    "pret_nou": 365.4,
+    "discount": 13,
+    "creata_la": 1783613051470,
+    "expira_la": 1783613291470
+  },
+  {
+    "id_produs": 3,
+    "pret_vechi": 1120,
+    "pret_nou": 840,
+    "discount": 25,
+    "creata_la": 1783613051470,
+    "expira_la": 1783613291470
+  },
+  {
+    "id_produs": 18,
+    "pret_vechi": 260,
+    "pret_nou": 228.8,
+    "discount": 12,
+    "creata_la": 1783613051470,
+    "expira_la": 1783613291470
+  },
+  {
+    "id_produs": 5,
+    "pret_vechi": 1560,
+    "pret_nou": 1185.6,
+    "discount": 24,
+    "creata_la": 1783613171476,
+    "expira_la": 1783613411476
+  },
+  {
+    "id_produs": 6,
+    "pret_vechi": 8900,
+    "pret_nou": 7832,
+    "discount": 12,
+    "creata_la": 1783613171476,
+    "expira_la": 1783613411476
+  },
+  {
+    "id_produs": 14,
+    "pret_vechi": 1450,
+    "pret_nou": 1247,
+    "discount": 14,
+    "creata_la": 1783613171476,
+    "expira_la": 1783613411476
+  },
+  {
+    "id_produs": 1,
+    "pret_vechi": 2450,
+    "pret_nou": 1911,
+    "discount": 22,
+    "creata_la": 1783613241655,
+    "expira_la": 1783613481655
+  },
+  {
+    "id_produs": 2,
+    "pret_vechi": 1890,
+    "pret_nou": 1474.2,
+    "discount": 22,
+    "creata_la": 1783613241655,
+    "expira_la": 1783613481655
+  },
+  {
+    "id_produs": 17,
+    "pret_vechi": 340,
+    "pret_nou": 275.4,
+    "discount": 19,
+    "creata_la": 1783613241655,
+    "expira_la": 1783613481655
+  },
+  {
+    "id_produs": 7,
+    "pret_vechi": 220,
+    "pret_nou": 162.8,
+    "discount": 26,
+    "creata_la": 1783613241655,
+    "expira_la": 1783613481655
+  },
+  {
+    "id_produs": 16,
+    "pret_vechi": 380,
+    "pret_nou": 326.8,
+    "discount": 14,
+    "creata_la": 1783613361721,
+    "expira_la": 1783613601721
+  },
+  {
+    "id_produs": 15,
+    "pret_vechi": 640,
+    "pret_nou": 441.6,
+    "discount": 31,
+    "creata_la": 1783613361721,
+    "expira_la": 1783613601721
+  }
+]
