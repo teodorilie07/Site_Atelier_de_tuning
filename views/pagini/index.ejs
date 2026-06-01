@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <%- include('../fragmente/head.ejs') %>
+</head>
+<body>
+    <%- include('../fragmente/header.ejs') %>
+
+    <main class="grid-layout">
+        <section id="zona1">
+            <h2>Performanță Absolută</h2>
+            <div class="f-pattern-content">
+                <p>Descoperă noile standarde. Aducem inovația sub capota ta, oferind modificări care îți taie respirația. Facem <a href="/despre">tuning profesional</a> și <a href="#zona-video-premium">remapare software</a> pentru performanță extremă.</p>
+                <img src="/resurse/imagini/motor-med.jpg" alt="Motor performanta tuning" class="img-prezentare">
+            </div>
+        </section>
+
+        <section id="zona8">
+            <h2>Panou Informativ</h2>
+
+            <section id="welcome">
+                <hgroup>
+                    <h3>Bine ați venit la Tuning Pro</h3>
+                    <p>Expertiză în performanță auto și piese auto.</p>
+                </hgroup>
+                
+                <p class="intro">Transformăm orice mașină într-o piesă unică prin <b>tuning</b> profesional, <b>remapare</b> sigură și piese pentru orice <b>stage</b> ales. Pentru detalii despre evenimente, vezi <a href="#zona3">calendarul nostru</a>.</p>
+                
+                <blockquote>"Puterea fără control nu înseamnă nimic." - Pirelli</blockquote>
+
+                <figure>
+                    <a href="https://www.tuningworldbodensee.de/en/" target="_blank">
+                        <img src="/resurse/imagini/motor-mic.jpg" alt="Motor modificat tuning pro">
+                    </a>
+                    <figcaption>Atelierul nostru dotat cu stand de probă (Dyno). Vizitează site-ul partenerilor noștri de la <a href="https://www.tuningworldbodensee.de/en/" target="_blank">Tuning World</a>.</figcaption>
+                </figure>
+            </section>
+
+            <section id="promotii">
+                <h3>Promoțiile Lunii</h3>
+                <ul>
+                    <li>Reducere 15% la pachetele Stage 1 realizate de luni până miercuri.</li>
+                    <li>Diagnoză completă gratuită la orice evacuare custom achiziționată.</li>
+                </ul>
+            </section>
+
+            <section id="zona2">
+                <h3>Orar Lucru & Servicii</h3>
+                <div class="tabel-container">
+                    <table>
+                        <caption>Tabel cu programul saptamanal</caption>
+                        <thead>
+                            <tr>
+                                <th>Zi</th>
+                                <th>Interval</th>
+                                <th>Departament</th>
+                                <th>Disponibilitate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Luni - Joi</td>
+                                <td>09:00 - 18:00</td>
+                                <td>Software</td>
+                                <td rowspan="4">Deschis Permanent</td> 
+                            </tr>
+                            <tr>
+                                <td>Vineri</td>
+                                <td>09:00 - 17:00</td>
+                                <td>Mecanică</td>
+                            </tr>
+                            <tr>
+                                <td>Sâmbătă</td>
+                                <td>10:00 - 14:00</td>
+                                <td>Estetică</td>
+                            </tr>
+                            <tr>
+                                <td>Sărbători</td>
+                                <td>12:00 - 14:00</td>
+                                <td>Consultanță</td>
+                            </tr>
+                            <tr>
+                                <td>Duminică</td>
+                                <td colspan="3">Închis - Doar urgențe software pe chat</td> 
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4">Pentru programări folosiți formularul online.</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+            <div style="display: flex; flex-direction: row; gap: var(--gap-grid); align-items: stretch; width: 100%; margin-top: var(--gap-grid);">
+                <div id="video-sec" style="flex: 2; margin-bottom: 0; padding: var(--padding-zone); border: 1px solid var(--clr-border-light); border-radius: 8px; box-shadow: 0 4px 6px var(--clr-shadow-light); background-color: var(--clr-white);">
+                    <h3>Demonstrații Video</h3>
+                    <div class="container-iframe-custom">
+                        <div class="iframe-box">
+                            <iframe name="ifr-video" src="https://www.youtube.com/embed/cu-t4KIxjeE" title="Demonstratie Video" allowfullscreen></iframe>
+                        </div>
+                        <div class="taburi-iframe">
+                            <a href="https://www.youtube.com/embed/m82XM89kIEw" target="ifr-video">Showroom Dubai</a>
+                            <a href="https://www.youtube.com/embed/dQw4w9WgXcQ" target="ifr-video">Test drive nissan gtr</a>
+                            <a href="https://www.youtube.com/embed/cu-t4KIxjeE?autoplay=1" target="ifr-video">Test Dyno R8</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="zona4" style="flex: 1; margin-bottom: 0; padding: var(--padding-zone); border: 1px solid var(--clr-border-light); border-radius: 8px; box-shadow: 0 4px 6px var(--clr-shadow-light); background-color: var(--clr-4);">
+                    <h3>Anunțuri </h3>
+                    <p>Aducem pe stoc <i>evacuări din titan</i> pentru BMW M4. Grăbește-te!</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="zona-video-premium" style="grid-column: 1 / -1; margin-top: 20px;">
+            <h3>Prezentare Premium Tuning Studio</h3>
+            <div class="container-video-custom">
+                <video controls preload="none" poster="/resurse/imagini/video-poster.jpg">
+                    <source src="/resurse/video/prezentare.mp4" type="video/mp4">
+                    <source src="/resurse/video/prezentare.webm" type="video/webm">
+                    <track src="/resurse/video/subtitrare-ro.vtt" kind="subtitles" srclang="ro" label="Română">
+                    <track src="/resurse/video/subtitrare-en.vtt" kind="subtitles" srclang="en" label="English">
+                    Browserul tău nu suportă elementul video HTML5.
+                </video>
+            </div>
+        </section>
+
+        <section id="zona3">
+            <h3>Calendar Evenimente</h3>
+            <ul>
+                <li><time datetime="2026-05-20T10:00">20 Mai 2026, 10:00</time> - <b>Meet & Greet</b>: Expoziție în parcarea TPC.</li>
+                <li><time datetime="2026-06-15T12:00">15 Iunie 2026, 12:00</time> - <b>Lansare Stage 3</b>: Teste publice.</li>
+            </ul>
+        </section>
+
+        <section id="zona5">
+            <h3>Utilizatori Online</h3>
+            <p>Sunt 45 pasionati activi in comunitate.</p>
+        </section>
+
+        <section id="zona6">
+            <h3>Statistici User </h3>
+            <p>Ai vizualizat 12 proiecte astazi.</p>
+        </section>
+
+        <section id="zona7">
+            <h3>Documentație Tehnică</h3>
+            <embed src="/resurse/ghid.pdf" type="application/pdf" width="100%" height="300">
+        </section>
+    </main>
+
+    <%- include('../fragmente/footer.ejs') %>
+</body>
+</html>

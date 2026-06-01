@@ -1,0 +1,311 @@
+$max-menu-items: 6;
+
+
+#ch-menu, .hamburger-label {
+  display: none;
+}
+
+nav {
+  //meniu principal
+  ul {
+    background: var(--clr-5);
+    display: flex;
+    border-radius: 5px;
+    list-style: none;
+    margin-top: 10px;
+
+    li {
+      position: relative;
+      padding: 15px;
+
+      // submeniu ascuns
+      ul {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 150px;
+        background: var(--clr-1);
+        border: 2px solid var(--clr-main);
+        z-index: 100;
+        opacity: 0;
+        visibility: hidden;
+        transform-origin: top left;
+        transform: scale(0);
+        transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease-in-out;
+
+
+        li {
+          padding: 10px 15px;
+        }
+      }
+
+      // afișare submeniu
+      &:hover {
+        ul {
+          opacity: 1;
+          visibility: visible;
+          transform: scale(1);
+        }
+      }
+    }
+  }
+
+  // Efect apariție fluidă
+  @for $i from 1 through $max-menu-items {
+    ul > li:nth-child(#{$i}) {
+      transition-delay: 0.05s * $i;
+    }
+  }
+
+  // Stiluri pentru desktop
+  @media screen and (min-width: 769px) {
+    ul li {
+      padding: 0;
+
+      & > a {
+        display: block;
+        padding: 15px;
+        position: relative;
+        border-radius: 5px;
+        overflow: hidden;
+        z-index: 1;
+        transition: color 0.4s ease, box-shadow 0.4s ease;
+        transition-delay: 0.1s;
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 100%;
+          height: 100%;
+          background-color: var(--clr-main);
+          transform: translate(-50%, -50%) scale(0);
+          border-radius: 5px;
+          transition: transform 0.4s ease;
+          transition-delay: 0.1s;
+          z-index: -1;
+        }
+      }
+
+      // Activare efect hover
+      &:hover {
+        & > a {
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+          color: var(--clr-dark-blue);
+
+          &::before {
+            transform: translate(-50%, -50%) scale(1);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Stiluri pentru mobil
+@media screen and (max-width: 768px) {
+  nav {
+    background-color: var(--clr-dark-blue);
+    min-height: 60px;
+    position: relative;
+    width: 100%;
+    z-index: 1001;
+
+    // meniu mobil ascuns
+    ul {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--clr-nav-mobile-bg);
+      padding: 20px 0;
+      margin-top: 0;
+      border-radius: 0;
+      border: none;
+      clip-path: polygon(0% 0%, 0% 0%, 0% 50%, 0% 100%, 0% 100%);
+      transition: clip-path 0.5s ease-out;
+      z-index: 9999;
+
+      // Aliniere elemente mobil
+      li {
+        width: 100%;
+        text-align: center;
+        padding: 0;
+
+        // Link-uri mobil
+        a {
+          @extend %mobile-link-base;
+          color: var(--clr-white);
+          font-size: 1.4rem;
+          padding: 15px;
+
+          // Hover link mobil
+          &:hover {
+            background-color: var(--clr-nav-mobile-hover);
+          }
+        }
+
+        // Submeniu mobil colapsat
+        ul {
+          position: static;
+          flex-direction: column;
+          width: 100%;
+          background-color: var(--clr-nav-mobile-sub);
+          border: none;
+          max-height: 0;
+          opacity: 0;
+          visibility: hidden;
+          overflow: hidden;
+          transition: max-height 0.4s ease, opacity 0.4s ease, visibility 0.4s;
+
+         
+          li {
+            padding: 0;
+
+            // Link-uri submeniu mobil
+            a {
+              @extend %mobile-link-base;
+              background-color: var(--clr-nav-mobile-sub);
+              font-size: 1.1rem;
+              padding: 12px;
+              border-bottom: 1px solid var(--clr-nav-mobile-border);
+
+              // Hover subneniu mobil
+              &:hover {
+                background-color: var(--clr-nav-mobile-sub-hover);
+              }
+            }
+          }
+        }
+
+        // Deschidere submeniu mobil
+        &:hover {
+          ul {
+            max-height: 600px;
+            opacity: 1;
+            visibility: visible;
+          }
+        }
+      }
+    }
+  }
+
+  // Buton hamburger mobil
+  .hamburger-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: absolute;
+    top: 18px;
+    left: 20px;
+    width: 35px;
+    height: 24px;
+    cursor: pointer;
+    z-index: 10000;
+
+    // Linii buton hamburger
+    span {
+      display: block;
+      width: 100%;
+      height: 4px;
+      background-color: var(--clr-white);
+      border-radius: 4px;
+      transition: background-color 0.4s ease;
+    }
+  }
+
+  // Afișare meniu activ
+  body:has(#ch-menu:checked) {
+    .hamburger-label span {
+      background-color: var(--clr-white);
+    }
+    nav ul {
+      clip-path: polygon(0% 0%, 100% 0%, 150% 50%, 100% 100%, 0% 100%);
+    }
+  }
+}
+
+// Stiluri pentru print
+@media print {
+  .hamburger-label, #ch-menu {
+    display: none !important;
+  }
+
+  #nav-principal {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .meniu {
+    display: block !important;
+    position: static !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: var(--clr-nav-mobile-bg) !important;
+    margin: 20px 0 0 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    width: 100% !important;
+    clip-path: none !important;
+    transform: none !important;
+    transition: none !important;
+    page-break-after: always;
+
+    // Elemente listă print
+    li {
+      display: list-item !important;
+      list-style-type: disc !important;
+      margin-left: 30px !important;
+      padding: 12px 20px !important;
+      position: static !important;
+      background: transparent !important;
+
+      // Link-uri print
+      a {
+        color: var(--clr-white) !important;
+        display: inline-block !important;
+        padding: 5px 0 !important;
+      }
+    }
+
+    // Submeniu vizibil print
+    .submeniu {
+      display: block !important;
+      position: static !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      margin: 5px 0 5px 20px !important;
+      padding: 0 !important;
+      width: auto !important;
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      transition: none !important;
+
+      // Structură submeniu print
+      li {
+        display: list-item !important;
+        list-style-type: circle !important;
+        margin-left: 50px !important;
+        padding: 2px 0 !important;
+        background: transparent !important;
+
+ 
+        a {
+          color: var(--clr-nav-print-text-sub) !important;
+          font-size: 0.95em !important;
+          display: inline !important;
+          opacity: 1 !important;
+        }
+      }
+    }
+  }
+}

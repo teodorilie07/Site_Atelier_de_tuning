@@ -1,39 +1,300 @@
-nav{
-    --latime-buton: 100px;
-    --inaltime-buton: 50px;
-    background-color: var(--culoare-contur);
-}
-
-ul.menu{
-    display: flex;
-}
-
-ul.menu ul{
+/* Ascundere buton mobil implicit */
+#ch-menu, .hamburger-label {
     display: none;
 }
 
-.meniu li
-
-ul.menu, ul.menu ul{
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+/* Structură meniu principal */
+nav ul {
+    background: var(--clr-5);
+    display: flex;
+    border-radius: 5px;
+    list-style: none;
+    margin-top: 10px;
 }
 
-ul.menu li{
-    display:inline-block;
-    padding: 10px;
-    background-color: var(--color-background);
-    border: 1px solid var(--culoare-contur);
-    width: var(--latime-buton);
-    height: var(--inaltime-buton);
-    text-align: center;
-    line-height: var(--inaltime-buton);
-    color: black;
-    transition: all 1s linear;
+/* Elemente meniu principal */
+nav ul li { 
+    position: relative; 
+    padding: 15px; 
 }
 
-ui.menu li:hover{
-    background-color: var(--color-background);
-    color: white;
+/* Submeniu ascuns implicit */
+nav ul li ul {
+    display: flex; 
+    flex-direction: column;
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    min-width: 150px;
+    background: var(--clr-1); 
+    border: 2px solid var(--clr-main);
+    z-index: 100;
+    opacity: 0; 
+    visibility: hidden;
+    transform-origin: top left; 
+    transform: scale(0);          
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease-in-out;
+}
+
+/* Afișare submeniu la hover */
+nav ul li:hover ul { 
+    opacity: 1; 
+    visibility: visible; 
+    transform: scale(1); 
+}
+
+/* Elemente din submeniu */
+nav ul li ul li { padding: 10px 15px; }
+
+/* MENIU DESKTOP*/
+@media screen and (min-width: 769px) {
+    nav ul li {
+        padding: 0;
+    }
+
+    nav ul li > a {
+        display: block;
+        padding: 15px;
+        position: relative;
+        border-radius: 5px;
+        overflow: hidden;
+        z-index: 1;
+        transition: color 0.4s ease, box-shadow 0.4s ease;
+        transition-delay: 0.1s;
+    }
+
+    /* Efect fundal la hover */
+    nav ul li > a::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        background-color: var(--clr-main);
+        transform: translate(-50%, -50%) scale(0);
+        border-radius: 5px;
+        transition: transform 0.4s ease;
+        transition-delay: 0.1s;
+        z-index: -1;
+    }
+
+    /* Schimbare culori la hover */
+    nav ul li:hover > a {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        color: var(--clr-dark-blue);
+    }
+
+    /* Activare animație fundal */
+    nav ul li:hover > a::before {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* MENIU TELEFON (Ecrane mici) */
+@media screen and (max-width: 768px) {
+    /* Bară navigare mobil */
+    nav {
+        background-color: var(--clr-dark-blue);
+        min-height: 60px;
+        position: relative;
+        width: 100%;
+        z-index: 1001;
+    }
+    
+    /* Buton hamburger mobil */
+    .hamburger-label {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: absolute;
+        top: 18px;
+        left: 20px;
+        width: 35px;
+        height: 24px;
+        cursor: pointer;
+        z-index: 10000;
+    }
+
+    /* Linii buton hamburger */
+    .hamburger-label span {
+        display: block;
+        width: 100%;
+        height: 4px;
+        background-color: var(--clr-white);
+        border-radius: 4px;
+        transition: background-color 0.4s ease;
+    }
+
+    /* Culoare hamburger când e deschis */
+    body:has(#ch-menu:checked) .hamburger-label span {
+        background-color: var(--clr-white);
+    }
+
+    /* Meniu mobil ascuns */
+    nav ul { 
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        flex-direction: column; 
+        align-items: center;
+        background-color: #000000;
+        padding: 20px 0 20px 0;
+        margin-top: 0;
+        border-radius: 0;
+        border: none;
+        clip-path: polygon(0% 0%, 0% 0%, 0% 50%, 0% 100%, 0% 100%);
+        transition: clip-path 0.5s ease-out;
+        z-index: 9999;
+    }
+
+    /* Afișare meniu mobil activ */
+    body:has(#ch-menu:checked) nav ul {
+        clip-path: polygon(0% 0%, 100% 0%, 150% 50%, 100% 100%, 0% 100%);
+    }
+
+    /* Elemente listă mobil */
+    nav ul li {
+        width: 100%;
+        text-align: center;
+        padding: 0;
+    }
+
+    /* Link-uri meniu mobil */
+    nav ul li a {
+        color: var(--clr-white);
+        font-size: 1.4rem;
+        font-weight: bold;
+        display: block;
+        padding: 15px;
+        transition: background-color 0.3s ease;
+    }
+    
+    /* Hover link-uri mobil */
+    nav ul li a:hover {
+        background-color: #222222;
+    }
+
+    /* Submeniu mobil ascuns */
+    nav ul li ul {
+        position: static;
+        flex-direction: column;
+        width: 100%;
+        background-color: #1a1a1a;
+        border: none;
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        overflow: hidden;
+        transition: max-height 0.4s ease, opacity 0.4s ease, visibility 0.4s;
+    }
+
+    /* Afișare submeniu mobil */
+    nav ul li:hover ul {
+        max-height: 600px;
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Resetare spațiere submeniu mobil */
+    nav ul li ul li {
+        padding: 0;
+    }
+
+    /* Link-uri submeniu mobil */
+    nav ul li ul li a {
+        background-color: #1a1a1a;
+        font-size: 1.1rem;
+        padding: 12px;
+        border-bottom: 1px solid #333333;
+    }
+
+    /* Hover link submeniu mobil */
+    nav ul li ul li a:hover {
+        background-color: #444444;
+    }
+}
+
+/* MENIU PENTRU IMPRIMARE */
+@media print {
+    /* Ascundere controale mobil */
+    .hamburger-label, #ch-menu {
+        display: none !important;
+    }
+
+    /* Bară navigare la print */
+    #nav-principal {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    /* Listă meniu la print */
+    .meniu {
+        display: block !important;
+        position: static !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: #000000 !important;
+        margin: 20px 0 0 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+        width: 100% !important;
+        clip-path: none !important;
+        transform: none !important;
+        transition: none !important;
+        page-break-after: always;
+    }
+
+    /* Elemente meniu la print */
+    .meniu li {
+        display: list-item !important;
+        list-style-type: disc !important;
+        margin-left: 30px !important;
+        padding: 12px 20px !important;
+        position: static !important;
+        background: transparent !important;
+    }
+    
+    /* Link-uri principale la print */
+    .meniu li a {
+        color: #ffffff !important;
+        display: inline-block !important;
+        padding: 5px 0 !important;
+    }
+
+    /* Submeniu vizibil la print */
+    .meniu .submeniu {
+        display: block !important;
+        position: static !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 5px 0 5px 20px !important;
+        padding: 0 !important;
+        width: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        transition: none !important;
+    }
+
+    /* Elemente submeniu la print */
+    .meniu .submeniu li {
+        display: list-item !important;
+        list-style-type: circle !important;
+        margin-left: 50px !important;
+        padding: 2px 0 !important;
+        background: transparent !important;
+    }
+
+    /* Link-uri submeniu la print */
+    .meniu .submeniu li a {
+        color: #444444 !important;
+        font-size: 0.95em !important;
+        display: inline !important;
+        opacity: 1 !important;
+    }
 }

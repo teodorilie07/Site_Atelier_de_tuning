@@ -1,15 +1,12 @@
-/* =========================================================
-   BONUS ETAPA 2: RESET CSS EXTERN
-   ========================================================= */
+
 :root {
-    --reset-font-base: 18px; /* Unitate fixă pentru html */
+    --reset-font-base: 18px; 
     --reset-line-height: 1.5;
     --reset-margin-0: 0;
     --reset-padding-0: 0;
     --reset-box-sizing: border-box;
 }
 
-/* Html și body primesc unități fixe conform cerinței */
 html {
     box-sizing: var(--reset-box-sizing);
     font-size: var(--reset-font-base); 
@@ -25,15 +22,13 @@ body {
     width: 100vw; 
     overflow-x: hidden;
     line-height: var(--reset-line-height);
-    font-size: 1rem; /* Bază pentru restul elementelor (relativă) */
+    font-size: 1rem; 
 }
 
-/* Toate celelalte elemente folosesc unități relative (rem/em) */
 h1, h2, h3, h4, p, a, li, span, td, th, caption, blockquote, figure, figcaption, address, small, time {
     font-size: 1rem; 
 }
 
-/* Redefinirea stilurilor bold/italic/liste/tabele */
 b, strong { font-weight: bold; }
 i, em { font-style: italic; }
 table { border-collapse: collapse; border-spacing: 0; }
